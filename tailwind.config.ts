@@ -11,7 +11,7 @@ export default {
     extend: {
       colors: {
         gm: {
-          primary: '#66E3C4',
+          primary: '#6AE8C5',
         },
       },
       borderRadius: {

@@ -37,9 +37,9 @@ export default function TipSelector({ onAmountSelect, selectedAmount }: TipSelec
             key={amount}
             type="button"
             onClick={() => handlePresetSelect(amount)}
-            className={`p-4 rounded-xl border-2 transition-all ${
+          className={`p-4 rounded-xl border-2 transition-all ${
               selectedAmount === amount && !isCustomSelected
-                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                ? 'gm-border gm-bg-soft gm-text'
                 : 'border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50'
             }`}
           >
@@ -64,8 +64,8 @@ export default function TipSelector({ onAmountSelect, selectedAmount }: TipSelec
             placeholder="Введите сумму"
             className={`w-full p-4 pr-12 rounded-xl border-2 transition-all ${
               isCustomSelected
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-neutral-200 focus:border-blue-500 focus:bg-white'
+                ? 'gm-border gm-bg-soft'
+                : 'border-neutral-200 focus:border-[--gm-primary] focus:bg-white'
             }`}
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500">₽</span>

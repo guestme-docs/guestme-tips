@@ -351,8 +351,8 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
 
   const renderCodeInput = () => (
     <div className="text-center py-20">
-      <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <QrCode className="w-10 h-10 text-blue-600" />
+      <div className="w-20 h-20 gm-bg-soft rounded-full flex items-center justify-center mx-auto mb-6">
+        <QrCode className="w-10 h-10 gm-text" />
       </div>
       <h1 className="text-3xl font-bold text-gray-900 mb-4">Оставить чаевые</h1>
       <p className="text-gray-600 mb-8 text-lg">Введите код заказа или отсканируйте QR-код</p>
@@ -368,7 +368,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
             value={inputCode}
             onChange={(e) => setInputCode(e.target.value)}
             placeholder="Например: ORDER123"
-            className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-lg font-mono"
+            className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[--gm-primary] focus:border-[--gm-primary] text-center text-lg font-mono"
             required
           />
         </div>
@@ -394,18 +394,18 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
 
   const renderInitialization = () => (
     <div className="text-center py-20">
-      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <Receipt className="w-8 h-8 text-blue-600" />
+      <div className="w-16 h-16 gm-bg-soft rounded-full flex items-center justify-center mx-auto mb-6">
+        <Receipt className="w-8 h-8 gm-text" />
       </div>
       <h1 className="text-2xl font-bold text-gray-900 mb-4">Инициализация ссылки</h1>
       <p className="text-gray-600 mb-6">Проверяем подпись и временную метку...</p>
-      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <div className="w-8 h-8 border-4 border-[--gm-primary] border-t-transparent rounded-full animate-spin mx-auto"></div>
     </div>
   )
 
   const renderHeader = () => (
     <div className="text-center mb-8">
-      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="w-16 h-16 gm-bg-soft rounded-full flex items-center justify-center mx-auto mb-4">
         <img src="/guestme-logo.svg" alt="GuestMe" className="w-10 h-10" />
       </div>
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Спасибо, что были с нами!</h1>
@@ -454,8 +454,8 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
       <div className="bg-white rounded-2xl border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <Receipt className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 gm-bg-soft rounded-full flex items-center justify-center">
+              <Receipt className="w-5 h-5 gm-text" />
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Сумма заказа</h3>
@@ -508,7 +508,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
               onChange={(e) => setComment(e.target.value)}
               placeholder="Оставьте отзыв о сервисе..."
               rows={3}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none resize-none"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[--gm-primary] focus:outline-none resize-none"
             />
           </div>
         )}
@@ -538,7 +538,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
                 setCustomAmount(value)
                 setServiceCommission(Math.round(amount * 0.06))
               }}
-              className="text-4xl font-bold text-center bg-transparent border-none outline-none w-32 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg px-2 py-1 transition-all duration-200 hover:bg-gray-50"
+              className="text-4xl font-bold text-center bg-transparent border-none outline-none w-32 text-gray-900 focus:ring-2 focus:ring-[--gm-primary] focus:ring-opacity-50 rounded-lg px-2 py-1 transition-all duration-200 hover:bg-gray-50"
               placeholder="0"
             />
             <span className="text-4xl font-bold text-gray-900 ml-2">₽</span>
@@ -556,7 +556,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
               onClick={() => handlePercentageSelect(percentage)}
               className={`p-3 rounded-xl border-2 transition-colors ${
                 tipAmount === Math.round((orderData?.orderAmount || 0) * (percentage / 100))
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  ? 'gm-border gm-bg-soft gm-text'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -579,7 +579,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
               type="checkbox"
               checked={payCommission}
               onChange={(e) => setPayCommission(e.target.checked)}
-              className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="mt-1 w-5 h-5 gm-checkbox border-gray-300 rounded focus:ring-[--gm-primary]"
             />
             <span className="text-sm text-gray-700">
               Согласен оплатить комиссию сервиса за официанта (6%)
@@ -591,29 +591,29 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
               type="checkbox"
               checked={paymentConsent}
               onChange={(e) => setPaymentConsent(e.target.checked)}
-              className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="mt-1 w-5 h-5 gm-checkbox border-gray-300 rounded focus:ring-[--gm-primary]"
               required
             />
             <span className="text-sm text-gray-700">
-              Согласен с <a href="#" className="text-blue-600 hover:underline">условиями оферты</a> *
+              Согласен с <a href="#" className="gm-text hover:underline">условиями оферты</a> *
             </span>
           </label>
         </div>
       </div>
 
       {/* Способ оплаты - СБП согласно спецификации */}
-      <div className="border-2 border-blue-500 rounded-2xl p-6 bg-blue-50">
+      <div className="border-2 gm-border rounded-2xl p-6 gm-bg-soft">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: 'var(--gm-primary)' }}>
+              <CreditCard className="w-6 h-6 text-neutral-900" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Система быстрых платежей (СБП)</h3>
               <p className="text-sm text-gray-600">Быстрая оплата через банковское приложение</p>
             </div>
           </div>
-          <ArrowRight className="w-6 h-6 text-blue-600" />
+          <ArrowRight className="w-6 h-6 gm-text" />
         </div>
       </div>
 
@@ -682,12 +682,12 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
       case 'order':
         return (
           <div className="text-center py-20">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Receipt className="w-8 h-8 text-blue-600" />
+      <div className="w-16 h-16 gm-bg-soft rounded-full flex items-center justify-center mx-auto mb-6">
+        <Receipt className="w-8 h-8 gm-text" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Получение данных заказа</h1>
             <p className="text-gray-600 mb-6">Загружаем информацию о заказе...</p>
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="w-8 h-8 border-4 border-[--gm-primary] border-t-transparent rounded-full animate-spin mx-auto"></div>
             
             {/* Отображение ошибки */}
             {error && (

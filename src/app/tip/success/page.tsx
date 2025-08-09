@@ -104,7 +104,7 @@ export default async function Page({ searchParams }: { searchParams?: Promise<{ 
 
         <Link 
           href="/" 
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+          className="inline-block gm-btn gm-btn-primary"
         >
           Закрыть
         </Link>
