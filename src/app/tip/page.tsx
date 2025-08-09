@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Star, Clock, Receipt, User, CreditCard, CheckCircle, ArrowRight, AlertCircle, QrCode, Heart } from 'lucide-react'
+import { Star, Clock, Receipt, CreditCard, CheckCircle, ArrowRight, AlertCircle, QrCode } from 'lucide-react'
 
 // Интерфейсы для типизации
 interface OrderItem {
@@ -140,21 +140,21 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
     }
   }, [link, code, sig, ts, currentStep])
 
-  // Получение данных заказа
-  useEffect(() => {
-    console.log('TipPage: Order data useEffect triggered:', { 
-      currentStep, 
-      linkDataOrderId: linkData?.orderId,
-      hasLinkData: !!linkData
-    })
-    
-    if (currentStep === 'order' && linkData?.orderId) {
-      console.log('TipPage: Fetching order data for:', linkData.orderId)
-      fetchOrderData(linkData.orderId)
-    } else {
-      console.log('TipPage: Skipping order data fetch - conditions not met')
-    }
-  }, [currentStep, linkData])
+                // Получение данных заказа
+              useEffect(() => {
+                console.log('TipPage: Order data useEffect triggered:', {
+                  currentStep,
+                  linkDataOrderId: linkData?.orderId,
+                  hasLinkData: !!linkData
+                })
+
+                if (currentStep === 'order' && linkData?.orderId) {
+                  console.log('TipPage: Fetching order data for:', linkData.orderId)
+                  fetchOrderData(linkData.orderId)
+                } else {
+                  console.log('TipPage: Skipping order data fetch - conditions not met')
+                }
+              }, [currentStep, linkData])
 
   // Функция получения данных заказа
   const fetchOrderData = async (orderId: string) => {
