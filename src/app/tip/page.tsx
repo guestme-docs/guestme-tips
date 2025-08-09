@@ -162,30 +162,117 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
       console.log('TipPage: fetchOrderData called with orderId:', orderId)
       setError(null)
       
-      const params = new URLSearchParams({ code: orderId })
-      if (sig) params.append('sig', sig)
-      if (ts) params.append('ts', ts)
+      // Определяем тип сценария по параметрам
+      const scenario = determineScenario(orderId, sig, ts)
+      console.log('TipPage: Determined scenario:', scenario)
       
-      const apiUrl = `/api/tips?${params.toString()}`
-      console.log('TipPage: Calling API:', apiUrl)
+      // Создаем заглушку для GitHub Pages
+      const mockOrderData = createMockOrderData(scenario, orderId)
+      console.log('TipPage: Created mock order data:', mockOrderData)
       
-      const response = await fetch(apiUrl)
-      console.log('TipPage: API response status:', response.status)
+      setOrderData(mockOrderData)
+      setCurrentStep('rating')
       
-      const data = await response.json()
-      console.log('TipPage: API response data:', data)
-      
-      if (data.ok && data.orderData) {
-        console.log('TipPage: Setting order data and moving to rating step')
-        setOrderData(data.orderData)
-        setCurrentStep('rating')
-      } else {
-        console.log('TipPage: API error:', data.error)
-        setError(data.error || 'Не удалось получить данные заказа')
-      }
     } catch (error) {
-      console.error('TipPage: Error fetching order data:', error)
-      setError('Ошибка при получении данных заказа')
+      console.error('TipPage: Error creating mock data:', error)
+      setError('Ошибка при создании данных заказа')
+    }
+  }
+
+  // Определение типа сценария
+  const determineScenario = (orderId: string, signature?: string, timestamp?: string): string => {
+    console.log('TipPage: Determining scenario for:', { orderId, signature, timestamp })
+    
+    // Сценарий 1: Активный официант (есть подпись и timestamp)
+    if (signature && timestamp) {
+      console.log('TipPage: Scenario: Active waiter (has signature and timestamp)')
+      return 'active_waiter'
+    }
+    
+    // Сценарий 2: Неактивный официант (есть подпись, нет timestamp)
+    if (signature && !timestamp) {
+      console.log('TipPage: Scenario: Inactive waiter (has signature, no timestamp)')
+      return 'inactive_waiter'
+    }
+    
+    // Сценарий 3: Тест без подписи (нет подписи, есть timestamp)
+    if (!signature && timestamp) {
+      console.log('TipPage: Scenario: Test without signature (no signature, has timestamp)')
+      return 'test_no_signature'
+    }
+    
+    // Сценарий 4: Ввод кода вручную (нет ни подписи, ни timestamp)
+    console.log('TipPage: Scenario: Manual code input (no signature, no timestamp)')
+    return 'manual_input'
+  }
+
+  // Создание заглушки данных заказа
+  const createMockOrderData = (scenario: string, orderId: string): OrderData => {
+    console.log('TipPage: Creating mock data for scenario:', scenario)
+    
+    const baseData = {
+      restaurant: 'Ресторан "У Моря"',
+      waiter: 'Алексей Петров',
+      waiterId: 'ALEX001',
+      orderNumber: orderId,
+      orderAmount: 2500,
+      orderDate: new Date().toLocaleDateString('ru-RU'),
+      tableNumber: '12',
+      items: [
+        { name: 'Стейк из тунца', quantity: 1, price: 1800 },
+        { name: 'Салат Цезарь', quantity: 1, price: 450 },
+        { name: 'Морс клюквенный', quantity: 1, price: 250 }
+      ]
+    }
+    
+    switch (scenario) {
+      case 'active_waiter':
+        return {
+          ...baseData,
+          recipient: {
+            type: 'waiter',
+            id: 'ALEX001',
+            name: 'Алексей',
+            surname: 'Петров',
+            photo: '/guestme-logo.svg',
+            goal: 'Накопить на отпуск',
+            status: 'active'
+          }
+        }
+      
+      case 'inactive_waiter':
+        return {
+          ...baseData,
+          recipient: {
+            type: 'team',
+            id: 'TEAM001',
+            name: 'Команда ресторана',
+            status: 'inactive'
+          }
+        }
+      
+      case 'test_no_signature':
+        return {
+          ...baseData,
+          recipient: {
+            type: 'waiter',
+            id: 'TEST001',
+            name: 'Тестовый официант',
+            status: 'test'
+          }
+        }
+      
+      case 'manual_input':
+      default:
+        return {
+          ...baseData,
+          recipient: {
+            type: 'waiter',
+            id: 'MANUAL001',
+            name: 'Официант',
+            status: 'manual'
+          }
+        }
     }
   }
 
@@ -248,30 +335,24 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
     setError(null)
     
     try {
-      const response = await fetch('/api/tips', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code: linkData?.orderId || code,
-          amount: tipAmount,
-          rating,
-          comment,
-          recipientType: orderData?.recipient.type || 'team',
-          waiterId: orderData?.waiterId,
-          waiterName: orderData?.waiter,
-          restaurantName: orderData?.restaurant
-        })
+      // Имитация обработки платежа для GitHub Pages
+      console.log('TipPage: Processing payment:', {
+        code: linkData?.orderId || code,
+        amount: tipAmount,
+        rating,
+        comment,
+        recipientType: orderData?.recipient.type || 'team',
+        waiterId: orderData?.waiterId,
+        waiterName: orderData?.waiter,
+        restaurantName: orderData?.restaurant
       })
-
-      const data = await response.json()
       
-      if (data.ok) {
-        setCurrentStep('thankyou')
-      } else {
-        setError(data.error || 'Ошибка при обработке платежа')
-      }
+      // Имитация задержки обработки
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      console.log('TipPage: Payment processed successfully')
+      setCurrentStep('thankyou')
+      
     } catch (error) {
       console.error('Error processing payment:', error)
       setError('Ошибка при обработке платежа')
