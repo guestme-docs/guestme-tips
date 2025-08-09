@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Star, Phone, CreditCard, Upload, Trash2, Settings, BarChart3 } from 'lucide-react'
 
 interface WaiterProfile {
   id: string
@@ -55,7 +54,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
     ]
   })
 
-  const [tips, setTips] = useState<TipRecord[]>([
+  const [tips] = useState<TipRecord[]>([
     {
       id: '1',
       comment: 'Отличный сервис!',
