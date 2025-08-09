@@ -1,0 +1,30 @@
+[
+  {
+    "id": "ALEX001",
+    "name": "Алексей",
+    "surname": "Петров",
+    "phone": "+7 999 123 45 67",
+    "status": "active",
+    "photo": null,
+    "goal": "Накопить на отпуск в горах"
+  },
+  {
+    "id": "ANNA002",
+    "name": "Анна",
+    "surname": "Иванова",
+    "phone": "+7 999 234 56 78",
+    "status": "active",
+    "photo": null,
+    "goal": "Покупка автомобиля"
+  },
+  {
+    "id": "MIKHAIL003",
+    "name": "Михаил",
+    "surname": "Сидоров",
+    "phone": "+7 999 345 67 89",
+    "status": "inactive",
+    "photo": null,
+    "goal": "Обучение за границей"
+  }
+]
+

@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GuestMe Tips - Система чаевых
 
-## Getting Started
+Система для приема чаевых через QR-коды из чеков iiko. Гости могут оценить посещение, оставить комментарий и оставить чаевые официанту или команде ресторана.
 
-First, run the development server:
+## 🚀 Демо
+
+[Посмотреть демо](https://your-username.github.io/guestme-tips/)
+
+## ✨ Функциональность
+
+- **QR-коды для чаевых** - генерируются из чеков iiko
+- **Автоматическое определение получателя** - активный официант или команда
+- **Система оценок** - от 1 до 5 звезд
+- **Комментарии** - до 500 символов
+- **Гибкие суммы чаевых** - фиксированные проценты или произвольная сумма
+- **Комиссия сервиса** - 6% с округлением вверх
+- **Оплата через СБП** - QR-код или переход в банк
+- **Личный кабинет официанта** - статистика и настройки
+- **Административная панель** - управление сотрудниками и настройками
+
+## 🛠 Технологии
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Стили**: Tailwind CSS
+- **Иконки**: Lucide React
+- **Деплой**: GitHub Pages
+
+## 📱 Тестирование
+
+На главной странице доступны тестовые сценарии:
+
+- **TEST001** - активный официант Алексей Петров
+- **TEST002** - неактивный официант (чаевые идут команде)
+- **TEST003** - активный официант Анна Иванова
+- **Ввод кода вручную** - для тестирования произвольных кодов
+
+## 🚀 Развертывание
+
+### Локальная разработка
 
 ```bash
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Сборка для продакшена
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### GitHub Pages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Форкните репозиторий
+2. Включите GitHub Pages в настройках репозитория
+3. Выберите источник: "GitHub Actions"
+4. При каждом push в ветку `main` будет автоматический деплой
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Структура проекта
 
-## Learn More
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/               # API endpoints
+│   ├── connect/           # Административная панель
+│   ├── tip/               # Страница чаевых
+│   ├── waiter/            # Личный кабинет официанта
+│   └── page.tsx           # Главная страница
+├── data/                  # JSON данные
+│   ├── employees.json     # Сотрудники
+│   └── tips.json          # История чаевых
+└── lib/                   # Утилиты
+    └── storage.ts         # Работа с файлами
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 🔧 Конфигурация
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Основные настройки в `next.config.ts`:
+- `output: 'export'` - статическая генерация
+- `basePath` - путь для GitHub Pages
+- `trailingSlash: true` - совместимость с GitHub Pages
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 Лицензия
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License

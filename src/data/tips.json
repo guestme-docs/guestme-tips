@@ -1,0 +1,83 @@
+[
+  {
+    "id": "1h2d6z3imv2",
+    "code": "1002",
+    "amount": 100,
+    "rating": 5,
+    "comment": "Отличный сервис!",
+    "recipientType": "waiter",
+    "waiterId": "ALEX001",
+    "waiterName": "Алексей",
+    "restaurantName": "Ресторан \"У Моря\"",
+    "createdAt": "2025-08-09T11:13:58.782Z"
+  },
+  {
+    "id": "branoimiuy",
+    "code": "1002",
+    "amount": 100,
+    "rating": 4,
+    "recipientType": "waiter",
+    "waiterId": "ALEX001",
+    "waiterName": "Алексей",
+    "restaurantName": "Ресторан \"У Моря\"",
+    "createdAt": "2025-08-09T11:14:21.957Z"
+  },
+  {
+    "id": "7vtdz1h45qk",
+    "code": "1002",
+    "amount": 100,
+    "rating": 5,
+    "comment": "Быстро и вежливо",
+    "recipientType": "team",
+    "restaurantName": "Ресторан \"У Моря\"",
+    "createdAt": "2025-08-09T11:14:23.115Z"
+  },
+  {
+    "id": "wrxeo3zhbnf",
+    "code": "1002",
+    "amount": 300,
+    "rating": 5,
+    "comment": "Прекрасный вечер!",
+    "recipientType": "waiter",
+    "waiterId": "ALEX001",
+    "waiterName": "Алексей",
+    "restaurantName": "Ресторан \"У Моря\"",
+    "createdAt": "2025-08-09T11:15:47.554Z"
+  },
+  {
+    "id": "lbxopi94nfb",
+    "code": "ORDER123",
+    "amount": 225,
+    "rating": 4,
+    "comment": "afsdvadssd asdf adsf",
+    "recipientType": "waiter",
+    "waiterId": "ALEX001",
+    "waiterName": "Алексей Петров",
+    "restaurantName": "Ресторан \"У Моря\"",
+    "createdAt": "2025-08-09T17:18:16.918Z"
+  },
+  {
+    "id": "vxf16wjo2vr",
+    "code": "TEST003",
+    "amount": 90,
+    "rating": 5,
+    "comment": "",
+    "recipientType": "waiter",
+    "waiterId": "ANNA002",
+    "waiterName": "Анна Иванова",
+    "restaurantName": "Ресторан \"У Моря\"",
+    "createdAt": "2025-08-09T17:52:12.538Z"
+  },
+  {
+    "id": "m00febziikg",
+    "code": "TEST001",
+    "amount": 500,
+    "rating": 5,
+    "comment": "ывкпыива",
+    "recipientType": "waiter",
+    "waiterId": "ALEX001",
+    "waiterName": "Алексей Петров",
+    "restaurantName": "Ресторан \"У Моря\"",
+    "createdAt": "2025-08-09T17:56:02.062Z"
+  }
+]
