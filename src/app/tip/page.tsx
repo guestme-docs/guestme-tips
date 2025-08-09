@@ -58,62 +58,133 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
   const [error, setError] = useState<string | null>(null)
   const [inputCode, setInputCode] = useState('')
 
-  // Получаем параметры из searchParams
+  // Получаем параметры из searchParams и URL
   useEffect(() => {
-    if (searchParams) {
-      searchParams.then((resolvedParams) => {
-        setLink(resolvedParams.link)
-        setCode(resolvedParams.code)
-        setSig(resolvedParams.sig)
-        setTs(resolvedParams.ts)
-        if (resolvedParams.code) {
-          setCurrentStep('initialization')
+    const getParams = async () => {
+      let resolvedParams: { link?: string; code?: string; sig?: string; ts?: string } = {}
+      
+      console.log('TipPage: Starting parameter resolution...')
+      
+      // Пробуем получить параметры из searchParams (Next.js 15)
+      if (searchParams) {
+        try {
+          console.log('TipPage: Resolving searchParams...')
+          resolvedParams = await searchParams
+          console.log('TipPage: searchParams resolved:', resolvedParams)
+        } catch (error) {
+          console.log('Error resolving searchParams:', error)
         }
-      })
+      }
+      
+      // Fallback: получаем параметры из URL напрямую
+      if (!resolvedParams.code && typeof window !== 'undefined') {
+        console.log('TipPage: Using URL fallback...')
+        const urlParams = new URLSearchParams(window.location.search)
+        resolvedParams = {
+          link: urlParams.get('link') || undefined,
+          code: urlParams.get('code') || undefined,
+          sig: urlParams.get('sig') || undefined,
+          ts: urlParams.get('ts') || undefined
+        }
+        console.log('TipPage: URL params:', resolvedParams)
+      }
+      
+      // Устанавливаем параметры
+      setLink(resolvedParams.link)
+      setCode(resolvedParams.code)
+      setSig(resolvedParams.sig)
+      setTs(resolvedParams.ts)
+      
+      console.log('TipPage: Final params set:', resolvedParams)
+      
+      // Если есть код, переходим к инициализации
+      if (resolvedParams.code) {
+        console.log('TipPage: Found code, setting step to initialization:', resolvedParams.code)
+        setCurrentStep('initialization')
+      } else {
+        console.log('TipPage: No code found, staying on code-input step')
+      }
     }
+    
+    getParams()
   }, [searchParams])
 
   // Инициализация по ссылке или коду
   useEffect(() => {
+    console.log('TipPage: Initialization useEffect triggered:', { 
+      link, 
+      code, 
+      sig, 
+      ts, 
+      currentStep,
+      hasLink: !!link,
+      hasCode: !!code
+    })
+    
     if ((link || code) && currentStep === 'initialization') {
+      console.log('TipPage: Starting initialization with:', { link, code, sig, ts })
       // Имитация валидации подписи и временной метки
       setTimeout(() => {
-        setLinkData({
+        const linkDataObj = {
           signature: sig || 'valid_signature_123',
           timestamp: ts ? parseInt(ts) : Date.now(),
           orderId: code || 'ORDER123'
-        })
+        }
+        console.log('TipPage: Setting linkData:', linkDataObj)
+        setLinkData(linkDataObj)
+        console.log('TipPage: Moving to order step')
         setCurrentStep('order')
       }, 1000)
+    } else {
+      console.log('TipPage: Skipping initialization - conditions not met')
     }
   }, [link, code, sig, ts, currentStep])
 
   // Получение данных заказа
   useEffect(() => {
+    console.log('TipPage: Order data useEffect triggered:', { 
+      currentStep, 
+      linkDataOrderId: linkData?.orderId,
+      hasLinkData: !!linkData
+    })
+    
     if (currentStep === 'order' && linkData?.orderId) {
+      console.log('TipPage: Fetching order data for:', linkData.orderId)
       fetchOrderData(linkData.orderId)
+    } else {
+      console.log('TipPage: Skipping order data fetch - conditions not met')
     }
   }, [currentStep, linkData])
 
   // Функция получения данных заказа
   const fetchOrderData = async (orderId: string) => {
     try {
+      console.log('TipPage: fetchOrderData called with orderId:', orderId)
       setError(null)
+      
       const params = new URLSearchParams({ code: orderId })
       if (sig) params.append('sig', sig)
       if (ts) params.append('ts', ts)
       
-      const response = await fetch(`/api/tips?${params.toString()}`)
+      const apiUrl = `/api/tips?${params.toString()}`
+      console.log('TipPage: Calling API:', apiUrl)
+      
+      const response = await fetch(apiUrl)
+      console.log('TipPage: API response status:', response.status)
+      
       const data = await response.json()
+      console.log('TipPage: API response data:', data)
       
       if (data.ok && data.orderData) {
+        console.log('TipPage: Setting order data and moving to rating step')
         setOrderData(data.orderData)
         setCurrentStep('rating')
       } else {
+        console.log('TipPage: API error:', data.error)
         setError(data.error || 'Не удалось получить данные заказа')
       }
     } catch (error) {
-      console.error('Error fetching order data:', error)
+      console.error('TipPage: Error fetching order data:', error)
       setError('Ошибка при получении данных заказа')
     }
   }
@@ -127,9 +198,14 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
 
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('TipPage: handleCodeSubmit called with inputCode:', inputCode)
+    
     if (inputCode.trim()) {
+      console.log('TipPage: Setting code and moving to initialization step')
       setCode(inputCode.trim())
       setCurrentStep('initialization')
+    } else {
+      console.log('TipPage: Empty input code, not proceeding')
     }
   }
 
