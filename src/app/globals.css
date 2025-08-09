@@ -10,3 +10,17 @@ h2, .h2 { font-family: var(--font-inter-display), var(--font-inter), ui-sans-ser
 .gm-btn-primary { background: var(--gm-primary); @apply text-neutral-900 shadow-sm hover:opacity-90 active:opacity-80; }
 .gm-input { @apply w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-[--gm-primary]; }
 .container { @apply mx-auto max-w-6xl px-4; }
+
+/* Скрытие стрелочек в числовых полях ввода */
+input[type="text"][inputmode="numeric"]::-webkit-outer-spin-button,
+input[type="text"][inputmode="numeric"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="text"][inputmode="numeric"],
+input[type="number"] {
+  -moz-appearance: textfield;
+}

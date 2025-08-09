@@ -1,8 +1,8 @@
 ﻿'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Star, Clock, Receipt, CreditCard, CheckCircle, ArrowRight, AlertCircle, QrCode } from 'lucide-react'
+import { Receipt, CreditCard, CheckCircle, ArrowRight, AlertCircle, QrCode } from 'lucide-react'
 
 // Интерфейсы для типизации
 interface OrderItem {
@@ -40,12 +40,10 @@ interface LinkData {
 }
 
 export default function TipPage({ searchParams }: { searchParams?: Promise<{ link?: string; code?: string; sig?: string; ts?: string }> }) {
-  const [currentStep, setCurrentStep] = useState<'code-input' | 'initialization' | 'order' | 'rating' | 'amount' | 'payment' | 'thankyou'>('code-input')
+  const [currentStep, setCurrentStep] = useState<'code-input' | 'initialization' | 'order' | 'tip-form' | 'thankyou'>('code-input')
   const [linkData, setLinkData] = useState<LinkData | null>(null)
   const [orderData, setOrderData] = useState<OrderData | null>(null)
-  const [rating, setRating] = useState<number>(0)
   const [comment, setComment] = useState('')
-  const [showCommentField, setShowCommentField] = useState(false)
   const [tipAmount, setTipAmount] = useState<number>(0)
   const [customAmount, setCustomAmount] = useState('')
   const [serviceCommission, setServiceCommission] = useState(0)
@@ -57,6 +55,8 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
   const [ts, setTs] = useState<string | undefined>()
   const [error, setError] = useState<string | null>(null)
   const [inputCode, setInputCode] = useState('')
+  const [serviceRating, setServiceRating] = useState<number>(0)
+  const [payCommission, setPayCommission] = useState(true)
 
   // Получаем параметры из searchParams и URL
   useEffect(() => {
@@ -140,24 +140,8 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
     }
   }, [link, code, sig, ts, currentStep])
 
-                // Получение данных заказа
-              useEffect(() => {
-                console.log('TipPage: Order data useEffect triggered:', {
-                  currentStep,
-                  linkDataOrderId: linkData?.orderId,
-                  hasLinkData: !!linkData
-                })
-
-                if (currentStep === 'order' && linkData?.orderId) {
-                  console.log('TipPage: Fetching order data for:', linkData.orderId)
-                  fetchOrderData(linkData.orderId)
-                } else {
-                  console.log('TipPage: Skipping order data fetch - conditions not met')
-                }
-              }, [currentStep, linkData])
-
   // Функция получения данных заказа
-  const fetchOrderData = async (orderId: string) => {
+  const fetchOrderData = useCallback(async (orderId: string) => {
     try {
       console.log('TipPage: fetchOrderData called with orderId:', orderId)
       console.log('TipPage: Current sig and ts values:', { sig, ts })
@@ -172,13 +156,21 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
       console.log('TipPage: Created mock order data:', mockOrderData)
       
       setOrderData(mockOrderData)
-      setCurrentStep('rating')
+      setCurrentStep('tip-form')
       
     } catch (error) {
       console.error('TipPage: Error creating mock data:', error)
       setError('Ошибка при создании данных заказа')
     }
-  }
+  }, [sig, ts])
+
+  // Автоматический вызов fetchOrderData когда переходим на шаг 'order'
+  useEffect(() => {
+    if (currentStep === 'order' && linkData?.orderId) {
+      console.log('TipPage: Automatically calling fetchOrderData for orderId:', linkData.orderId)
+      fetchOrderData(linkData.orderId)
+    }
+  }, [currentStep, linkData, fetchOrderData])
 
   // Определение типа сценария
   const determineScenario = (orderId: string, signature?: string, timestamp?: string): string => {
@@ -286,80 +278,69 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
   // Расчет комиссии сервиса (6% согласно спецификации)
   useEffect(() => {
     if (tipAmount > 0) {
-      setServiceCommission(Math.ceil(tipAmount * 0.06)) // 6% комиссия, округление вверх
+      setServiceCommission(Math.round(tipAmount * 0.06)) // 6% комиссия, округление вверх
     }
   }, [tipAmount])
 
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('TipPage: handleCodeSubmit called with inputCode:', inputCode)
-    
     if (inputCode.trim()) {
-      console.log('TipPage: Setting code and moving to initialization step')
       setCode(inputCode.trim())
       setCurrentStep('initialization')
-    } else {
-      console.log('TipPage: Empty input code, not proceeding')
     }
-  }
-
-  const handleRatingSelect = (value: number) => {
-    setRating(value)
   }
 
   const handleAmountSelect = (amount: number) => {
     setTipAmount(amount)
     setCustomAmount('')
+    // Рассчитываем комиссию сервиса (6%)
+    setServiceCommission(Math.round(amount * 0.06))
   }
 
   const handleCustomAmountChange = (value: string) => {
-    setCustomAmount(value)
-    if (value && !isNaN(Number(value))) {
-      setTipAmount(Math.ceil(Number(value))) // Округление вверх согласно спецификации
-    }
+    // Убираем все символы кроме цифр
+    const cleanValue = value.replace(/[^0-9]/g, '')
+    setCustomAmount(cleanValue)
+    const amount = parseInt(cleanValue) || 0
+    setTipAmount(amount)
+    // Рассчитываем комиссию сервиса (6%)
+    setServiceCommission(Math.round(amount * 0.06))
   }
 
   const handlePercentageSelect = (percentage: number) => {
     if (orderData) {
-      const amount = Math.ceil(orderData.orderAmount * (percentage / 100))
+      const amount = Math.round(orderData.orderAmount * (percentage / 100))
       setTipAmount(amount)
-      setCustomAmount('')
-    }
-  }
-
-  const handleContinue = () => {
-    if (currentStep === 'rating' && rating > 0) {
-      setCurrentStep('amount')
-    } else if (currentStep === 'amount' && tipAmount > 0) {
-      setCurrentStep('payment')
+      setCustomAmount(amount.toString())
+      // Рассчитываем комиссию сервиса (6%)
+      setServiceCommission(Math.round(amount * 0.06))
     }
   }
 
   const handlePayment = async () => {
     if (!paymentConsent) return
-    
+
     setIsProcessing(true)
     setError(null)
-    
+
     try {
       // Имитация обработки платежа для GitHub Pages
       console.log('TipPage: Processing payment:', {
         code: linkData?.orderId || code,
         amount: tipAmount,
-        rating,
         comment,
         recipientType: orderData?.recipient.type || 'team',
         waiterId: orderData?.waiterId,
         waiterName: orderData?.waiter,
         restaurantName: orderData?.restaurant
       })
-      
+
       // Имитация задержки обработки
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       console.log('TipPage: Payment processed successfully')
       setCurrentStep('thankyou')
-      
+
     } catch (error) {
       console.error('Error processing payment:', error)
       setError('Ошибка при обработке платежа')
@@ -461,250 +442,163 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
     </div>
   )
 
-  const renderOrderInfo = () => (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Информация о заказе</h2>
-        <div className="text-sm text-gray-500">
-          <Clock className="w-4 h-4 inline mr-1" />
-          {orderData?.orderDate ? new Date(orderData.orderDate).toLocaleString('ru-RU') : ''}
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-        <div>
-          <span className="text-gray-600">Стол:</span>
-          <span className="ml-2 font-medium">{orderData?.tableNumber}</span>
-        </div>
-        <div>
-          <span className="text-gray-600">Сумма:</span>
-          <span className="ml-2 font-medium">{orderData?.orderAmount} ₽</span>
-        </div>
-      </div>
-      
-      <div className="space-y-2 mb-4">
-        {orderData?.items.slice(0, 3).map((item: OrderItem, index: number) => (
-          <div key={index} className="flex justify-between text-sm">
-            <span className="text-gray-700">{item.name} × {item.quantity}</span>
-            <span className="font-medium">{item.price} ₽</span>
-          </div>
-        ))}
-        {orderData && orderData.items.length > 3 && (
-          <div className="text-sm text-gray-500 text-center">
-            ... и ещё {orderData.items.length - 3} позиций
-          </div>
-        )}
-      </div>
-    </div>
-  )
-
-  const renderRating = () => (
+  const renderTipForm = () => (
     <div className="space-y-6">
+      {/* Заголовок */}
       {renderHeader()}
+      
+      {/* Информация о получателе */}
       {renderRecipient()}
-      {renderOrderInfo()}
-
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Оцените сервис</h2>
-        <p className="text-gray-600">Поделитесь своими впечатлениями</p>
+      
+      {/* Сумма заказа - только сумма */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <Receipt className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Сумма заказа</h3>
+              <p className="text-sm text-gray-600">Заказ #{orderData?.orderNumber}</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-gray-900">{orderData?.orderAmount} ₽</div>
+          </div>
+        </div>
       </div>
 
-      {/* Рейтинг звездами */}
-      <div className="text-center">
-        <div className="flex justify-center space-x-2 mb-4">
+      {/* Оценка сервиса и комментарий */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Оцените сервис</h3>
+        <div className="flex justify-center space-x-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
-              onClick={() => handleRatingSelect(star)}
-              className="p-2 hover:scale-110 transition-transform"
+              onClick={() => setServiceRating(star)}
+              className={`text-4xl transition-all hover:scale-110 ${
+                star <= serviceRating
+                  ? 'text-yellow-400'
+                  : 'text-gray-300 hover:text-gray-400'
+              }`}
             >
-              <Star
-                className={`w-12 h-12 ${
-                  star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                }`}
-              />
+              ★
             </button>
           ))}
         </div>
-        <p className="text-gray-600">{rating > 0 ? `Ваша оценка: ${rating} из 5` : 'Выберите оценку'}</p>
-      </div>
-
-      {/* Комментарий */}
-      <div>
-        {!showCommentField ? (
-          <button
-            onClick={() => setShowCommentField(true)}
-            className="w-full p-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors"
-          >
-            Оставить комментарий
-          </button>
-        ) : (
-          <div>
-            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
-              Комментарий (до 500 символов)
+        <div className="text-center mt-3">
+          <span className="text-sm text-gray-600">
+            {serviceRating === 0 && 'Нажмите на звездочку для оценки'}
+            {serviceRating === 1 && 'Плохо'}
+            {serviceRating === 2 && 'Неудовлетворительно'}
+            {serviceRating === 3 && 'Удовлетворительно'}
+            {serviceRating === 4 && 'Хорошо'}
+            {serviceRating === 5 && 'Отлично'}
+          </span>
+        </div>
+        
+        {/* Комментарий - автоматически раскрывается при оценке */}
+        {serviceRating > 0 && (
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Комментарий (необязательно)
             </label>
             <textarea
-              id="comment"
               value={comment}
-              onChange={(e) => setComment(e.target.value.slice(0, 500))}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Оставьте отзыв о сервисе..."
               rows={3}
-              maxLength={500}
-              className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-              placeholder="Расскажите о своем опыте..."
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none resize-none"
             />
-            <div className="text-right text-sm text-gray-500 mt-1">
-              {comment.length}/500
-            </div>
           </div>
         )}
       </div>
 
-      <button
-        onClick={handleContinue}
-        disabled={rating === 0}
-        className={`w-full gm-btn ${
-          rating > 0
-            ? 'gm-btn-primary'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-        }`}
-      >
-        Продолжить
-      </button>
-    </div>
-  )
-
-  const renderAmountSelection = () => (
-    <div className="space-y-6">
-      {renderHeader()}
-      {renderRecipient()}
-      {renderOrderInfo()}
-
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Сумма чаевых</h2>
-        <p className="text-gray-600">Выберите сумму для благодарности</p>
-      </div>
-
-      {/* Процентные кнопки согласно спецификации */}
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Процент от суммы заказа</h3>
-        <div className="grid grid-cols-2 gap-3">
+      {/* Выбор суммы чаевых */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Выберите сумму чаевых</h3>
+        
+        {/* Инструкция для пользователя */}
+        <div className="text-center mb-4">
+          <p className="text-sm text-gray-600 mb-2">Введите сумму чаевых или выберите процент от заказа</p>
+        </div>
+        
+        {/* Сумма чаевых крупным шрифтом с возможностью редактирования */}
+        <div className="text-center mb-6">
+          <div className="relative inline-block">
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={tipAmount || ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '')
+                const amount = parseInt(value) || 0
+                setTipAmount(amount)
+                setCustomAmount(value)
+                setServiceCommission(Math.round(amount * 0.06))
+              }}
+              className="text-4xl font-bold text-center bg-transparent border-none outline-none w-32 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg px-2 py-1 transition-all duration-200 hover:bg-gray-50"
+              placeholder="0"
+            />
+            <span className="text-4xl font-bold text-gray-900 ml-2">₽</span>
+          </div>
+          <div className="mt-2">
+            <p className="text-xs text-gray-500">Нажмите на поле и введите сумму</p>
+          </div>
+        </div>
+        
+        {/* Быстрый выбор процентов */}
+        <div className="grid grid-cols-4 gap-3">
           {[5, 10, 15, 20].map((percentage) => (
             <button
               key={percentage}
               onClick={() => handlePercentageSelect(percentage)}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                tipAmount === Math.ceil((orderData?.orderAmount || 0) * (percentage / 100))
+              className={`p-3 rounded-xl border-2 transition-colors ${
+                tipAmount === Math.round((orderData?.orderAmount || 0) * (percentage / 100))
                   ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              <div className="text-lg font-bold">{percentage}%</div>
-              <div className="text-sm text-gray-600">
-                {Math.ceil((orderData?.orderAmount || 0) * (percentage / 100))} ₽
+              <div className="text-lg font-semibold">{percentage}%</div>
+              <div className="text-xs text-gray-600">
+                {Math.round((orderData?.orderAmount || 0) * (percentage / 100))} ₽
               </div>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Быстрые суммы */}
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Быстрый выбор</h3>
-        <div className="grid grid-cols-3 gap-3">
-          {[100, 200, 300, 500, 1000, 2000].map((amount) => (
-            <button
-              key={amount}
-              onClick={() => handleAmountSelect(amount)}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                tipAmount === amount
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              <div className="text-lg font-bold">{amount}</div>
-              <div className="text-sm text-gray-600">₽</div>
-            </button>
-          ))}
+
+
+      {/* Согласие с условиями */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="space-y-4">
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={payCommission}
+              onChange={(e) => setPayCommission(e.target.checked)}
+              className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">
+              Согласен оплатить комиссию сервиса за официанта (6%)
+            </span>
+          </label>
+          
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={paymentConsent}
+              onChange={(e) => setPaymentConsent(e.target.checked)}
+              className="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              required
+            />
+            <span className="text-sm text-gray-700">
+              Согласен с <a href="#" className="text-blue-600 hover:underline">условиями оферты</a> *
+            </span>
+          </label>
         </div>
-      </div>
-
-      {/* Своя сумма */}
-      <div>
-        <label htmlFor="customAmount" className="block text-sm font-medium text-gray-700 mb-2">
-          Или введите свою сумму
-        </label>
-        <div className="relative">
-          <input
-            id="customAmount"
-            type="number"
-            min="10"
-            step="1"
-            value={customAmount}
-            onChange={(e) => handleCustomAmountChange(e.target.value)}
-            placeholder="Введите сумму"
-            className="w-full p-4 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">₽</span>
-        </div>
-      </div>
-
-      {/* Информация о комиссии */}
-      {tipAmount > 0 && (
-        <div className="bg-gray-50 rounded-xl p-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-gray-600">Сумма чаевых:</span>
-            <span className="font-semibold">{tipAmount} ₽</span>
-          </div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">Комиссия сервиса (6%):</span>
-            <span className="font-semibold">{serviceCommission} ₽</span>
-          </div>
-          <div className="flex justify-between items-center text-lg font-bold border-t pt-2">
-            <span>К оплате:</span>
-            <span className="text-blue-600">{tipAmount + serviceCommission} ₽</span>
-          </div>
-        </div>
-      )}
-
-      <button
-        onClick={handleContinue}
-        disabled={tipAmount === 0}
-        className={`w-full gm-btn ${
-          tipAmount > 0
-            ? 'gm-btn-primary'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-        }`}
-      >
-        Продолжить
-      </button>
-    </div>
-  )
-
-  const renderPayment = () => (
-    <div className="space-y-6">
-      {renderHeader()}
-      {renderRecipient()}
-      {renderOrderInfo()}
-
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Способ оплаты</h2>
-        <p className="text-gray-600">Выберите удобный способ оплаты</p>
-      </div>
-
-      {/* Согласие на оферту (обязательно) */}
-      <div className="bg-gray-50 rounded-xl p-4">
-        <label className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            checked={paymentConsent}
-            onChange={(e) => setPaymentConsent(e.target.checked)}
-            className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            required
-          />
-          <span className="text-sm text-gray-700">
-            Я согласен с <a href="#" className="text-blue-600 hover:underline">условиями оферты</a> *
-          </span>
-        </label>
       </div>
 
       {/* Способ оплаты - СБП согласно спецификации */}
@@ -723,14 +617,6 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
         </div>
       </div>
 
-      {/* Итоговая сумма */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-6">
-        <div className="flex justify-between items-center text-lg font-bold">
-          <span>К оплате:</span>
-          <span className="text-blue-600">{tipAmount + serviceCommission} ₽</span>
-        </div>
-      </div>
-
       {/* Отображение ошибки */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center space-x-3">
@@ -741,9 +627,9 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
 
       <button
         onClick={handlePayment}
-        disabled={!paymentConsent || isProcessing}
+        disabled={!paymentConsent || isProcessing || tipAmount === 0}
         className={`w-full gm-btn ${
-          paymentConsent && !isProcessing
+          paymentConsent && !isProcessing && tipAmount > 0
             ? 'gm-btn-primary'
             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
         }`}
@@ -754,7 +640,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
             Обработка...
           </div>
         ) : (
-          `Оплатить ${tipAmount + serviceCommission} ₽`
+          `Оплатить ${tipAmount + (payCommission ? serviceCommission : 0)} ₽`
         )}
       </button>
     </div>
@@ -831,12 +717,8 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
             )}
           </div>
         )
-      case 'rating':
-        return renderRating()
-      case 'amount':
-        return renderAmountSelection()
-      case 'payment':
-        return renderPayment()
+      case 'tip-form':
+        return renderTipForm()
       case 'thankyou':
         return renderThankYou()
       default:
@@ -846,7 +728,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 max-w-md">
         {/* Основной контент */}
         {renderContent()}
       </div>
