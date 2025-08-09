@@ -29,11 +29,11 @@ export default function HomePage() {
                 </Link>
                 
                 <Link
-                  href="/tip?code=TEST002&sig=test_signature&ts=1734567890"
+                  href="/tip?code=TEST002&sig=test_signature"
                   className="block p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Тест с неактивным официантом (команда)</div>
-                  <div className="text-sm text-neutral-600">Код: TEST002, sig: test_signature, ts: 1734567890 (пропуск валидации)</div>
+                  <div className="text-sm text-neutral-600">Код: TEST002, sig: test_signature (без timestamp - команда)</div>
                 </Link>
                 
                 <Link

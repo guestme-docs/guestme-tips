@@ -160,6 +160,7 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
   const fetchOrderData = async (orderId: string) => {
     try {
       console.log('TipPage: fetchOrderData called with orderId:', orderId)
+      console.log('TipPage: Current sig and ts values:', { sig, ts })
       setError(null)
       
       // Определяем тип сценария по параметрам
@@ -181,7 +182,13 @@ export default function TipPage({ searchParams }: { searchParams?: Promise<{ lin
 
   // Определение типа сценария
   const determineScenario = (orderId: string, signature?: string, timestamp?: string): string => {
-    console.log('TipPage: Determining scenario for:', { orderId, signature, timestamp })
+    console.log('TipPage: Determining scenario for:', { 
+      orderId, 
+      signature: signature || 'undefined', 
+      timestamp: timestamp || 'undefined',
+      hasSignature: !!signature,
+      hasTimestamp: !!timestamp
+    })
     
     // Сценарий 1: Активный официант (есть подпись и timestamp)
     if (signature && timestamp) {
