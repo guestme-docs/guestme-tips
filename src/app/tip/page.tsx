@@ -88,12 +88,19 @@ export default function TipPage() {
     
     // Здесь будет логика отправки
     // После успешной отправки переходим на страницу благодарности
-    try {
-      router.push(process.env.NODE_ENV === 'production' ? '/guestme-tips/thank-you/' : '/thank-you')
-    } catch (error) {
-      console.error('Ошибка навигации:', error)
-      // Fallback: попробуем использовать window.location
-              window.location.href = process.env.NODE_ENV === 'production' ? '/guestme-tips/thank-you/' : '/thank-you'
+    const thankYouPath = process.env.NODE_ENV === 'production' ? '/guestme-tips/thank-you/' : '/thank-you'
+    
+    // Для статического экспорта используем window.location напрямую
+    if (process.env.NODE_ENV === 'production') {
+      window.location.href = thankYouPath
+    } else {
+      try {
+        router.push(thankYouPath)
+      } catch (error) {
+        console.error('Ошибка навигации:', error)
+        // Fallback: используем window.location
+        window.location.href = thankYouPath
+      }
     }
   }
 
