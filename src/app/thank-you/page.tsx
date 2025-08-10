@@ -28,14 +28,19 @@ export default function ThankYouPage() {
   }
 
   const handleClose = () => {
-    // В реальном приложении здесь может быть редирект на главную страницу
-    // или закрытие модального окна
-    try {
-      router.push(process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/')
-    } catch (error) {
-      console.error('Ошибка навигации:', error)
-      // Fallback: попробуем использовать window.location
-              window.location.href = process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/'
+    // Для статического экспорта используем window.location напрямую
+    const homePath = process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/'
+    
+    if (process.env.NODE_ENV === 'production') {
+      window.location.href = homePath
+    } else {
+      try {
+        router.push(homePath)
+      } catch (error) {
+        console.error('Ошибка навигации:', error)
+        // Fallback: используем window.location
+        window.location.href = homePath
+      }
     }
   }
 
