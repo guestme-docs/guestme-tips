@@ -54,7 +54,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="bg-white border border-neutral-200 rounded-xl p-6">
             <h2 className="text-xl font-semibold text-neutral-900 mb-4">
-              Тестирование системы чаевых
+              Сценарии оплаты чаевых
             </h2>
 
             <div className="space-y-3">
@@ -67,40 +67,24 @@ export default function HomePage() {
                   onClick={() => handleNavigation(getFullPath('/tip?code=TEST001&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
-                  <div className="font-medium text-neutral-900">Тест с активным официантом</div>
-                  <div className="text-sm text-neutral-600">Код: TEST001, sig: test_signature, ts: 1734567890 (пропуск валидации)</div>
+                  <div className="font-medium text-neutral-900">Оплата официанту</div>
+                  <div className="text-sm text-neutral-600">Индивидуальные чаевые для конкретного официанта</div>
                 </button>
 
                 <button
-                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST002&sig=test_signature&ts=1734567890'))}
+                  onClick={() => handleNavigation(getFullPath('/team-tip?code=TEAM001&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
-                  <div className="font-medium text-neutral-900">Тест с неактивным официантом</div>
-                  <div className="text-sm text-neutral-600">Код: TEST002, sig: test_signature, ts: 1734567890 (пропуск валидации)</div>
+                  <div className="font-medium text-neutral-900">Оплата команде</div>
+                  <div className="text-sm text-neutral-600">Чаевые для всей команды ресторана</div>
                 </button>
 
                 <button
-                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST003&sig=test_signature&ts=1734567890'))}
+                  onClick={() => handleNavigation(getFullPath('/team-mvp?code=TEAM002&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
-                  <div className="font-medium text-neutral-900">Тест с несуществующим официантом</div>
-                  <div className="text-sm text-neutral-600">Код: TEST003, sig: test_signature, ts: 1734567890 (пропуск валидации)</div>
-                </button>
-
-                <button
-                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST004&sig=test_signature&ts=1734567890'))}
-                  className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
-                >
-                  <div className="font-medium text-neutral-900">Тест с истекшим временем</div>
-                  <div className="text-sm text-neutral-600">Код: TEST004, sig: test_signature, ts: 1734567890 (пропуск валидации)</div>
-                </button>
-
-                <button
-                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST005&sig=test_signature&ts=1734567890'))}
-                  className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
-                >
-                  <div className="font-medium text-neutral-900">Тест с неверной подписью</div>
-                  <div className="text-sm text-neutral-600">Код: TEST005, sig: test_signature, ts: 1734567890 (пропуск валидации)</div>
+                  <div className="font-medium text-neutral-900">Оплата команде (MVP)</div>
+                  <div className="text-sm text-neutral-600">Упрощенная версия для команды</div>
                 </button>
               </div>
             </div>
