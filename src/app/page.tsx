@@ -9,21 +9,29 @@ export default function HomePage() {
   const handleNavigation = (href: string) => {
     console.log('Попытка навигации на:', href)
     try {
-      router.push(href)
+      // Для локальной разработки используем router.push
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        router.push(href)
+      } else {
+        // Для GitHub Pages используем window.location
+        window.location.href = href
+      }
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: используем window.location
-      const fallbackPath = getFullPath(href)
-      console.log('Используем fallback навигацию на:', fallbackPath)
-      window.location.href = fallbackPath
+      console.log('Используем fallback навигацию на:', href)
+      window.location.href = href
     }
   }
 
   // Функция для получения полного пути с учетом basePath
   const getFullPath = (path: string) => {
-    const basePath = process.env.NODE_ENV === 'production' ? '/guestme-tips' : ''
+    // Проверяем, находимся ли мы на GitHub Pages
+    const isGitHubPages = window.location.hostname === 'guestme-docs.github.io' || 
+                         window.location.pathname.startsWith('/guestme-tips')
+    const basePath = isGitHubPages ? '/guestme-tips' : ''
     const fullPath = `${basePath}${path}`
-    console.log('getFullPath:', { path, basePath, fullPath })
+    console.log('getFullPath:', { path, basePath, fullPath, isGitHubPages, hostname: window.location.hostname, pathname: window.location.pathname })
     return fullPath
   }
 
@@ -31,7 +39,9 @@ export default function HomePage() {
   useEffect(() => {
     console.log('Главная страница загружена')
     console.log('NODE_ENV:', process.env.NODE_ENV)
-    console.log('basePath:', process.env.NODE_ENV === 'production' ? '/guestme-tips' : '')
+    console.log('hostname:', window.location.hostname)
+    console.log('pathname:', window.location.pathname)
+    console.log('isGitHubPages:', window.location.hostname === 'guestme-docs.github.io' || window.location.pathname.startsWith('/guestme-tips'))
   }, [])
 
   return (
