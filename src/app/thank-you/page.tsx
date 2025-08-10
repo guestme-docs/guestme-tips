@@ -25,11 +25,11 @@ export default function ThankYouPage() {
     // В реальном приложении здесь может быть редирект на главную страницу
     // или закрытие модального окна
     try {
-      router.push('/')
+      router.push(process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/')
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: попробуем использовать window.location
-      window.location.href = '/'
+              window.location.href = process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/'
     }
   }
 

@@ -83,11 +83,11 @@ export default function TipPage() {
     // Здесь будет логика отправки
     // После успешной отправки переходим на страницу благодарности
     try {
-      router.push('/thank-you')
+      router.push(process.env.NODE_ENV === 'production' ? '/guestme-tips/thank-you/' : '/thank-you')
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: попробуем использовать window.location
-      window.location.href = '/thank-you'
+              window.location.href = process.env.NODE_ENV === 'production' ? '/guestme-tips/thank-you/' : '/thank-you'
     }
   }
 

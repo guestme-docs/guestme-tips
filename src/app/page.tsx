@@ -11,8 +11,14 @@ export default function HomePage() {
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: используем window.location
-      window.location.href = href
+      window.location.href = getFullPath(href)
     }
+  }
+
+  // Функция для получения полного пути с учетом basePath
+  const getFullPath = (path: string) => {
+    const basePath = process.env.NODE_ENV === 'production' ? '/guestme-tips' : ''
+    return `${basePath}${path}`
   }
 
   return (
@@ -35,7 +41,7 @@ export default function HomePage() {
 
               <div className="grid grid-cols-1 gap-3">
                 <button
-                  onClick={() => handleNavigation('/tip?code=TEST001&sig=test_signature&ts=1734567890')}
+                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST001&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Тест с активным официантом</div>
@@ -43,7 +49,7 @@ export default function HomePage() {
                 </button>
 
                 <button
-                  onClick={() => handleNavigation('/tip?code=TEST002&sig=test_signature&ts=1734567890')}
+                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST002&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Тест с неактивным официантом</div>
@@ -51,7 +57,7 @@ export default function HomePage() {
                 </button>
 
                 <button
-                  onClick={() => handleNavigation('/tip?code=TEST003&sig=test_signature&ts=1734567890')}
+                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST003&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Тест с несуществующим официантом</div>
@@ -59,7 +65,7 @@ export default function HomePage() {
                 </button>
 
                 <button
-                  onClick={() => handleNavigation('/tip?code=TEST004&sig=test_signature&ts=1734567890')}
+                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST004&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Тест с истекшим временем</div>
@@ -67,7 +73,7 @@ export default function HomePage() {
                 </button>
 
                 <button
-                  onClick={() => handleNavigation('/tip?code=TEST005&sig=test_signature&ts=1734567890')}
+                  onClick={() => handleNavigation(getFullPath('/tip?code=TEST005&sig=test_signature&ts=1734567890'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Тест с неверной подписью</div>
@@ -89,7 +95,7 @@ export default function HomePage() {
 
               <div className="grid grid-cols-1 gap-3">
                 <button
-                  onClick={() => handleNavigation('/connect')}
+                  onClick={() => handleNavigation(getFullPath('/connect'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Подключение модуля</div>
@@ -97,7 +103,7 @@ export default function HomePage() {
                 </button>
 
                 <button
-                  onClick={() => handleNavigation('/waiter/ALEX001')}
+                  onClick={() => handleNavigation(getFullPath('/waiter/ALEX001'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Личный кабинет официанта</div>

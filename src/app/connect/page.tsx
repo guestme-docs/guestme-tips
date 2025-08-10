@@ -77,11 +77,11 @@ export default function ConnectPage() {
 
   const handleGoHome = () => {
     try {
-      router.push('/')
+      router.push(process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/')
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: используем window.location
-      window.location.href = '/'
+              window.location.href = process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/'
     }
   }
 
