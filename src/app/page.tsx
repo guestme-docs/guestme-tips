@@ -1,25 +1,38 @@
 ﻿'use client'
 
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function HomePage() {
   const router = useRouter()
 
   const handleNavigation = (href: string) => {
+    console.log('Попытка навигации на:', href)
     try {
       router.push(href)
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: используем window.location
-      window.location.href = getFullPath(href)
+      const fallbackPath = getFullPath(href)
+      console.log('Используем fallback навигацию на:', fallbackPath)
+      window.location.href = fallbackPath
     }
   }
 
   // Функция для получения полного пути с учетом basePath
   const getFullPath = (path: string) => {
     const basePath = process.env.NODE_ENV === 'production' ? '/guestme-tips' : ''
-    return `${basePath}${path}`
+    const fullPath = `${basePath}${path}`
+    console.log('getFullPath:', { path, basePath, fullPath })
+    return fullPath
   }
+
+  // Логируем загрузку страницы
+  useEffect(() => {
+    console.log('Главная страница загружена')
+    console.log('NODE_ENV:', process.env.NODE_ENV)
+    console.log('basePath:', process.env.NODE_ENV === 'production' ? '/guestme-tips' : '')
+  }, [])
 
   return (
     <main className="container py-12">
@@ -125,7 +138,7 @@ export default function HomePage() {
 
               <div className="grid grid-cols-1 gap-3">
                 <button
-                  onClick={() => handleNavigation('/thank-you')}
+                  onClick={() => handleNavigation(getFullPath('/thank-you'))}
                   className="block w-full p-4 border-2 border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 transition-colors text-left"
                 >
                   <div className="font-medium text-neutral-900">Страница благодарности</div>
