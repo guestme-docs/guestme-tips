@@ -5,6 +5,7 @@ import { Star, MessageCircle, Send, Target } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import AnimatedCounter from '@/components/AnimatedCounter'
+import { getStaticAssetPath } from '@/utils/paths'
 
 interface Waiter {
   id: string
@@ -19,18 +20,13 @@ interface Waiter {
 export default function TipPage() {
   const router = useRouter()
   
-  const getAssetPath = (path: string) => {
-    // For local development, use empty base path
-    // For production on GitHub Pages, use /guestme-tips
-    const basePath = typeof window !== 'undefined' && window.location.hostname === 'guestme-docs.github.io' ? '/guestme-tips' : ''
-    return `${basePath}${path}`
-  }
+  // Убираем локальную функцию getAssetPath, используем импортированную
   
   // Данные официанта (в реальном приложении будут приходить из URL параметров)
   const waiter: Waiter = {
     id: 'ALEX001',
     name: 'Алексей',
-          photo: getAssetPath('/waiter-photo.jpg'),
+          photo: getStaticAssetPath('/waiter-photo.jpg'),
     goal: 'Коплю на обучение в кулинарной школе',
     goalAmount: 150000,
     currentAmount: 45000,
@@ -142,7 +138,7 @@ export default function TipPage() {
                       {/* 1. Заголовок с благодарностью */}
             <div className="text-center mb-6">
                             <div className="w-40 h-20 flex items-center justify-center mx-auto mb-3">
-                 <Image src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" width={144} height={56} className="w-36 h-14 object-contain" />
+                 <Image src={getStaticAssetPath('/guestme-logo.svg')} alt="GuestMe" width={144} height={56} className="w-36 h-14 object-contain" />
                </div>
               <h1 className="text-2xl font-semibold text-gray-900 mb-2">Спасибо, что были с нами!</h1>
               <div className="text-lg text-gray-700 mb-2">Сумма чека: {billAmount.toLocaleString()} ₽</div>
@@ -414,7 +410,7 @@ export default function TipPage() {
             <div className="border-2 border-emerald-500 rounded-xl p-3">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center justify-center">
-                  <Image src="/sbp-logo.png" alt="СБП" width={32} height={32} className="w-8 h-8 object-contain" />
+                  <Image src={getStaticAssetPath('/sbp-logo.png')} alt="СБП" width={32} height={32} className="w-8 h-8 object-contain" />
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900">СБП</div>

@@ -1,6 +1,8 @@
 ﻿'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
+import { getStaticAssetPath } from '@/utils/paths'
 
 export default function HomePage() {
   return (

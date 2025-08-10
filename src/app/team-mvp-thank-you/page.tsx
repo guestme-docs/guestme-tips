@@ -1,8 +1,11 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import AnimatedCounter from '@/components/AnimatedCounter'
 import Confetti from '@/components/Confetti'
+import { getStaticAssetPath } from '@/utils/paths'
 
 interface TeamMVP {
   id: string
@@ -15,18 +18,13 @@ interface TeamMVP {
 export default function TeamMvpThankYouPage() {
   const router = useRouter()
   
-  const getAssetPath = (path: string) => {
-    // For local development, use empty base path
-    // For production on GitHub Pages, use /guestme-tips
-    const basePath = typeof window !== 'undefined' && window.location.hostname === 'guestme-docs.github.io' ? '/guestme-tips' : ''
-    return `${basePath}${path}`
-  }
+  // Убираем локальную функцию getAssetPath, используем импортированную
   
-  // Данные команды (в реальном приложении будут приходить из URL параметров или состояния)
+  // Данные команды MVP
   const teamMVP: TeamMVP = {
     id: 'TEAMMVP001',
     name: 'Команда ресторана',
-    photo: getAssetPath('/team-photo.jpg'),
+    photo: getStaticAssetPath('/team-photo.jpg'),
     restaurant: 'Стейк-хаус BigFood',
     goal: 'Поход в боулинг'
   }
@@ -46,7 +44,7 @@ export default function TeamMvpThankYouPage() {
           {/* Логотип GuestMe */}
           <div className="text-center mb-8">
             <div className="w-40 h-20 flex items-center justify-center mx-auto mb-4">
-              <Image src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" width={144} height={56} className="w-36 h-14 object-contain" />
+              <Image src={getStaticAssetPath('/guestme-logo.svg')} alt="GuestMe" width={144} height={56} className="w-36 h-14 object-contain" />
             </div>
           </div>
 

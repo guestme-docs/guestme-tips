@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { getStaticAssetPath } from '@/utils/paths'
 
 interface Employee {
   id: string
@@ -93,7 +94,7 @@ export default function ConnectPage() {
         {/* Логотип */}
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center justify-center">
-            <Image src="/guestme-logo-white.svg" alt="GuestMe" width={48} height={48} className="h-12 w-auto object-contain" />
+            <Image src={getStaticAssetPath('/guestme-logo-white.svg')} alt="GuestMe" width={48} height={48} className="h-12 w-auto object-contain" />
           </div>
         </div>
 
