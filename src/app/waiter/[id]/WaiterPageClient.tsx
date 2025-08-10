@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface WaiterProfile {
   id: string
@@ -33,6 +33,7 @@ interface WaiterPageClientProps {
 }
 
 export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
+  const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authStep, setAuthStep] = useState<'phone' | 'code'>('phone')
   const [phone, setPhone] = useState('')
@@ -111,6 +112,16 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
     setProfile(prev => ({ ...prev, cardNumber: undefined, status: 'inactive' }))
   }
 
+  const handleGoHome = () => {
+    try {
+      router.push('/')
+    } catch (error) {
+      console.error('Ошибка навигации:', error)
+      // Fallback: используем window.location
+      window.location.href = '/'
+    }
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -187,9 +198,12 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <Link href="/" className="text-teal-600 hover:text-teal-700 text-sm">
+              <button
+                onClick={handleGoHome}
+                className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
+              >
                 ← На главную
-              </Link>
+              </button>
               <h1 className="text-xl font-semibold text-gray-900">
                 Личный кабинет официанта
               </h1>

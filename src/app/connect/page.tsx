@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Employee {
   id: string
@@ -22,6 +22,7 @@ interface TeamAccount {
 }
 
 export default function ConnectPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'tips' | 'settings' | 'statistics'>('tips')
   const [isModuleEnabled, setIsModuleEnabled] = useState(false)
   const [agreementAccepted, setAgreementAccepted] = useState(false)
@@ -72,6 +73,16 @@ export default function ConnectPage() {
     setEmployees(prev => prev.map(emp => 
       emp.id === employeeId ? { ...emp, status: 'inactive' } : emp
     ))
+  }
+
+  const handleGoHome = () => {
+    try {
+      router.push('/')
+    } catch (error) {
+      console.error('Ошибка навигации:', error)
+      // Fallback: используем window.location
+      window.location.href = '/'
+    }
   }
 
   return (
@@ -161,9 +172,12 @@ export default function ConnectPage() {
           {/* Заголовок страницы */}
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Чаевые</h1>
-            <Link href="/" className="text-teal-600 hover:text-teal-700 text-sm">
+            <button
+              onClick={handleGoHome}
+              className="text-teal-600 hover:text-teal-700 text-sm hover:underline"
+            >
               ← На главную
-            </Link>
+            </button>
           </div>
 
           {/* Вкладки */}
