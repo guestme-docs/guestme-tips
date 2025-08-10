@@ -13,11 +13,17 @@ interface Waiter {
 export default function ThankYouPage() {
   const router = useRouter()
   
+  // Helper function to get correct asset path for production
+  const getAssetPath = (path: string) => {
+    const basePath = process.env.NODE_ENV === 'production' ? '/guestme-tips' : ''
+    return `${basePath}${path}`
+  }
+  
   // Данные официанта (в реальном приложении будут приходить из URL параметров или состояния)
   const waiter: Waiter = {
     id: 'ALEX001',
     name: 'Алексей',
-    photo: '/waiter-photo.jpg',
+    photo: getAssetPath('/waiter-photo.jpg'),
     restaurant: 'Ресторан "У Алексея"'
   }
 
@@ -44,7 +50,7 @@ export default function ThankYouPage() {
           {/* Логотип GuestMe */}
           <div className="text-center mb-8">
             <div className="w-40 h-20 flex items-center justify-center mx-auto mb-4">
-              <img src="/guestme-logo.svg" alt="GuestMe" className="w-36 h-14 object-contain" />
+              <img src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" className="w-36 h-14 object-contain" />
             </div>
           </div>
 

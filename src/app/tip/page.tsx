@@ -18,11 +18,17 @@ interface Waiter {
 export default function TipPage() {
   const router = useRouter()
   
+  // Helper function to get correct asset path for production
+  const getAssetPath = (path: string) => {
+    const basePath = process.env.NODE_ENV === 'production' ? '/guestme-tips' : ''
+    return `${basePath}${path}`
+  }
+  
   // Данные официанта (в реальном приложении будут приходить из URL параметров)
   const waiter: Waiter = {
     id: 'ALEX001',
     name: 'Алексей',
-          photo: '/waiter-photo.jpg',
+          photo: getAssetPath('/waiter-photo.jpg'),
     goal: 'Коплю на обучение в кулинарной школе',
     goalAmount: 150000,
     currentAmount: 45000,
@@ -104,7 +110,7 @@ export default function TipPage() {
                       {/* 1. Заголовок с благодарностью */}
             <div className="text-center mb-6">
                             <div className="w-40 h-20 flex items-center justify-center mx-auto mb-3">
-                 <img src="/guestme-logo.svg" alt="GuestMe" className="w-36 h-14 object-contain" />
+                 <img src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" className="w-36 h-14 object-contain" />
                </div>
               <h1 className="text-2xl font-semibold text-gray-900 mb-2">Спасибо, что были с нами!</h1>
               <div className="text-lg text-gray-700 mb-2">Сумма чека: {billAmount.toLocaleString()} ₽</div>
@@ -194,7 +200,7 @@ export default function TipPage() {
                       onChange={(e) => setComment(e.target.value)}
                       rows={comment.trim() ? Math.max(2, comment.split('\n').length) : 2}
                       placeholder="Поделитесь впечатлениями о сервисе..."
-                      className="w-full p-4 pr-20 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 resize-none overflow-hidden"
+                      className="w-full p-4 pr-20 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 resize-none overflow-hidden placeholder:text-sm placeholder:text-gray-400"
                       style={{ minHeight: '3rem' }}
                     />
                     <button
