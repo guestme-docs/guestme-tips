@@ -32,3 +32,48 @@ input[type="text"][inputmode="numeric"],
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* Стили для мобильной версии на ПК */
+@media (min-width: 768px) {
+  .mobile-container {
+    max-width: 414px;
+    margin: 0 auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-radius: 0;
+  }
+  
+  .mobile-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    z-index: -1;
+  }
+}
+
+/* Дополнительные стили для мобильного интерфейса */
+.mobile-optimized {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Стили для скроллбара в мобильном интерфейсе */
+.mobile-optimized::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-optimized::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mobile-optimized::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.mobile-optimized::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
