@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Confetti from '@/components/Confetti'
 
-interface Team {
+interface TeamMVP {
   id: string
   name: string
   photo: string
@@ -12,7 +12,7 @@ interface Team {
   goal: string
 }
 
-export default function TeamThankYouPage() {
+export default function TeamMvpThankYouPage() {
   const router = useRouter()
   
   const getAssetPath = (path: string) => {
@@ -23,8 +23,8 @@ export default function TeamThankYouPage() {
   }
   
   // Данные команды (в реальном приложении будут приходить из URL параметров или состояния)
-  const team: Team = {
-    id: 'TEAM001',
+  const teamMVP: TeamMVP = {
+    id: 'TEAMMVP001',
     name: 'Команда ресторана',
     photo: getAssetPath('/team-photo.jpg'),
     restaurant: 'Стейк-хаус BigFood',
@@ -62,16 +62,16 @@ export default function TeamThankYouPage() {
           <div className="flex items-center space-x-4 mb-8">
             <div className="w-20 h-20 rounded-2xl shadow-sm overflow-hidden border-2 border-gray-200/50">
               <Image 
-                src={team.photo} 
-                alt={team.name} 
+                src={teamMVP.photo} 
+                alt={teamMVP.name} 
                 width={80}
                 height={80}
                 className="w-20 h-20 object-cover rounded-2xl"
               />
             </div>
             <div className="flex-1">
-              <div className="font-bold text-2xl text-gray-900">{team.name}</div>
-              <div className="text-gray-500 text-sm">{team.restaurant}</div>
+              <div className="font-bold text-2xl text-gray-900">{teamMVP.name}</div>
+              <div className="text-gray-500 text-sm">{teamMVP.restaurant}</div>
             </div>
           </div>
 

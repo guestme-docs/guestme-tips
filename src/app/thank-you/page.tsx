@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Confetti from '@/components/Confetti'
 
 interface Waiter {
@@ -13,9 +14,10 @@ interface Waiter {
 export default function ThankYouPage() {
   const router = useRouter()
   
-  // Helper function to get correct asset path for production
   const getAssetPath = (path: string) => {
-    const basePath = process.env.NODE_ENV === 'production' ? '/guestme-tips' : ''
+    // For local development, use empty base path
+    // For production on GitHub Pages, use /guestme-tips
+    const basePath = typeof window !== 'undefined' && window.location.hostname === 'guestme-docs.github.io' ? '/guestme-tips' : ''
     return `${basePath}${path}`
   }
   
@@ -24,24 +26,11 @@ export default function ThankYouPage() {
     id: 'ALEX001',
     name: 'Алексей',
     photo: getAssetPath('/waiter-photo.jpg'),
-    restaurant: 'Ресторан "У Алексея"'
+            restaurant: 'Стейк-хаус BigFood'
   }
 
   const handleClose = () => {
-    // Для статического экспорта используем window.location напрямую
-    const homePath = process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/'
-    
-    if (process.env.NODE_ENV === 'production') {
-      window.location.href = homePath
-    } else {
-      try {
-        router.push(homePath)
-      } catch (error) {
-        console.error('Ошибка навигации:', error)
-        // Fallback: используем window.location
-        window.location.href = homePath
-      }
-    }
+    router.push('/')
   }
 
   return (
@@ -55,7 +44,7 @@ export default function ThankYouPage() {
           {/* Логотип GuestMe */}
           <div className="text-center mb-8">
             <div className="w-40 h-20 flex items-center justify-center mx-auto mb-4">
-              <img src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" className="w-36 h-14 object-contain" />
+              <Image src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" width={144} height={56} className="w-36 h-14 object-contain" />
             </div>
           </div>
 
@@ -68,15 +57,17 @@ export default function ThankYouPage() {
           </div>
 
           {/* Фото и имя официанта */}
-          <div className="flex items-center justify-center space-x-4 mb-8">
+          <div className="flex items-center space-x-4 mb-8">
             <div className="w-20 h-20 rounded-2xl shadow-sm overflow-hidden border-2 border-gray-200/50">
-              <img 
+              <Image 
                 src={waiter.photo} 
                 alt={waiter.name} 
+                width={80}
+                height={80}
                 className="w-20 h-20 object-cover rounded-2xl"
               />
             </div>
-            <div className="text-center">
+            <div className="flex-1">
               <div className="font-bold text-2xl text-gray-900">{waiter.name}</div>
               <div className="text-gray-500 text-sm">{waiter.restaurant}</div>
             </div>

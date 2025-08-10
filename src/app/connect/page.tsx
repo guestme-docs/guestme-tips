@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 interface Employee {
   id: string
@@ -77,11 +78,11 @@ export default function ConnectPage() {
 
   const handleGoHome = () => {
     try {
-      router.push(process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/')
+      router.push('/')
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: используем window.location
-              window.location.href = process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/'
+      window.location.href = '/'
     }
   }
 
@@ -92,7 +93,7 @@ export default function ConnectPage() {
         {/* Логотип */}
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center justify-center">
-            <img src="/guestme-logo-white.svg" alt="GuestMe" className="h-12 w-auto object-contain" />
+            <Image src="/guestme-logo-white.svg" alt="GuestMe" width={48} height={48} className="h-12 w-auto object-contain" />
           </div>
         </div>
 
@@ -349,7 +350,7 @@ export default function ConnectPage() {
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
                           {employee.photo ? (
-                            <img src={employee.photo} alt="" className="w-12 h-12 rounded-full" />
+                            <Image src={employee.photo} alt="" width={48} height={48} className="w-12 h-12 rounded-full" />
                           ) : (
                             <span className="text-gray-500 text-lg">
                               {employee.name[0]}{employee.surname[0]}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 interface WaiterProfile {
   id: string
@@ -113,12 +114,12 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
   }
 
   const handleGoHome = () => {
-    try {
-      router.push(process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/')
+        try {
+      router.push('/')
     } catch (error) {
       console.error('Ошибка навигации:', error)
       // Fallback: используем window.location
-              window.location.href = process.env.NODE_ENV === 'production' ? '/guestme-tips/' : '/'
+      window.location.href = '/'
     }
   }
 
@@ -257,7 +258,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
               <div className="flex items-center space-x-6">
                 <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
                   {profile.photo ? (
-                    <img src={profile.photo} alt="" className="w-24 h-24 object-cover" />
+                    <Image src={profile.photo} alt="" width={96} height={96} className="w-24 h-24 object-cover" />
                   ) : (
                     <span className="text-gray-500 text-2xl">
                       {profile.name[0]}{profile.surname[0]}

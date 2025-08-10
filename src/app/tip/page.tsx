@@ -1,8 +1,9 @@
 ﻿'use client'
 
 import { useState } from 'react'
-import { Star, MessageCircle, Heart, Send } from 'lucide-react'
+import { Star, MessageCircle, Send, Target } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import AnimatedCounter from '@/components/AnimatedCounter'
 
 interface Waiter {
@@ -18,9 +19,10 @@ interface Waiter {
 export default function TipPage() {
   const router = useRouter()
   
-  // Helper function to get correct asset path for production
   const getAssetPath = (path: string) => {
-    const basePath = process.env.NODE_ENV === 'production' ? '/guestme-tips' : ''
+    // For local development, use empty base path
+    // For production on GitHub Pages, use /guestme-tips
+    const basePath = typeof window !== 'undefined' && window.location.hostname === 'guestme-docs.github.io' ? '/guestme-tips' : ''
     return `${basePath}${path}`
   }
   
@@ -32,7 +34,7 @@ export default function TipPage() {
     goal: 'Коплю на обучение в кулинарной школе',
     goalAmount: 150000,
     currentAmount: 45000,
-    restaurant: 'Ресторан "У Алексея"'
+            restaurant: 'Стейк-хаус BigFood'
   }
 
              // Состояние страницы
@@ -68,6 +70,40 @@ export default function TipPage() {
     }
   }
 
+  // Функция для умной обрезки текста по 2 строкам
+  const truncateText = (text: string, maxLines: number = 2) => {
+    const lines = text.split('\n')
+    
+    // Максимальная длина строки с учетом ширины поля и отступов
+    // Доступная ширина ~256px, примерно 35-38 символов на строку
+    const maxLineLength = 35
+    
+    // Если строк меньше или равно maxLines, проверяем длину каждой строки
+    if (lines.length <= maxLines) {
+      // Проверяем, не слишком ли длинные строки
+      const hasLongLines = lines.some(line => line.length > maxLineLength)
+      if (!hasLongLines) {
+        return { text: text, truncated: false }
+      }
+    }
+    
+    // Берем первые maxLines строк
+    const truncatedLines = lines.slice(0, maxLines)
+    
+    // Обрабатываем каждую строку, обрезая длинные
+    for (let i = 0; i < truncatedLines.length; i++) {
+      if (truncatedLines[i].length > maxLineLength) {
+        // Оставляем место для многоточия и небольшой запас
+        truncatedLines[i] = truncatedLines[i].substring(0, maxLineLength - 3)
+      }
+    }
+    
+    return { 
+      text: truncatedLines.join('\n'), 
+      truncated: true 
+    }
+  }
+
   
 
   const handleSubmit = () => {
@@ -88,21 +124,10 @@ export default function TipPage() {
     
     // Здесь будет логика отправки
     // После успешной отправки переходим на страницу благодарности
-    const thankYouPath = process.env.NODE_ENV === 'production' ? '/guestme-tips/thank-you/' : '/thank-you'
-    
-    // Для статического экспорта используем window.location напрямую
-    if (process.env.NODE_ENV === 'production') {
-      window.location.href = thankYouPath
-    } else {
-      try {
-        router.push(thankYouPath)
-      } catch (error) {
-        console.error('Ошибка навигации:', error)
-        // Fallback: используем window.location
-        window.location.href = thankYouPath
-      }
-    }
+    router.push('/thank-you')
   }
+
+
 
   // Расчет прогресса цели
   const goalProgress = (waiter.currentAmount / waiter.goalAmount) * 100
@@ -117,7 +142,7 @@ export default function TipPage() {
                       {/* 1. Заголовок с благодарностью */}
             <div className="text-center mb-6">
                             <div className="w-40 h-20 flex items-center justify-center mx-auto mb-3">
-                 <img src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" className="w-36 h-14 object-contain" />
+                 <Image src={getAssetPath('/guestme-logo.svg')} alt="GuestMe" width={144} height={56} className="w-36 h-14 object-contain" />
                </div>
               <h1 className="text-2xl font-semibold text-gray-900 mb-2">Спасибо, что были с нами!</h1>
               <div className="text-lg text-gray-700 mb-2">Сумма чека: {billAmount.toLocaleString()} ₽</div>
@@ -127,9 +152,11 @@ export default function TipPage() {
           {/* 2. Фото и имя официанта */}
           <div className="flex items-center space-x-4 mb-6">
                          <div className="w-16 h-16 rounded-2xl shadow-sm overflow-hidden border-2 border-gray-200/50">
-                             <img 
+                             <Image 
                  src={waiter.photo} 
                  alt={waiter.name} 
+                 width={64}
+                 height={64}
                  className="w-16 h-16 object-cover rounded-2xl"
                />
             </div>
@@ -142,7 +169,7 @@ export default function TipPage() {
                      {/* 3. Цель (на что он копит) */}
            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-5 border border-emerald-200/50 mb-6">
              <div className="flex items-center space-x-3 mb-3">
-               <Heart className="w-5 h-5 text-emerald-600" />
+               <Target className="w-5 h-5 text-emerald-600" />
                <h3 className="font-semibold text-gray-900">Цель</h3>
              </div>
              <p className="text-gray-700 text-sm mb-3">{waiter.goal}</p>
@@ -207,8 +234,17 @@ export default function TipPage() {
                       onChange={(e) => setComment(e.target.value)}
                       rows={comment.trim() ? Math.max(2, comment.split('\n').length) : 2}
                       placeholder="Поделитесь впечатлениями о сервисе..."
-                      className="w-full p-4 pr-20 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 resize-none overflow-hidden placeholder:text-sm placeholder:text-gray-400"
-                      style={{ minHeight: '3rem' }}
+                      className="w-full p-4 pr-20 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 resize-none placeholder:text-sm placeholder:text-gray-400"
+                      style={{ 
+                        minHeight: '3rem',
+                        height: 'auto',
+                        overflow: 'hidden'
+                      }}
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement
+                        target.style.height = 'auto'
+                        target.style.height = Math.max(48, target.scrollHeight) + 'px'
+                      }}
                     />
                     <button
                       onClick={handleCommentSubmit}
@@ -223,13 +259,33 @@ export default function TipPage() {
                     onClick={() => setCommentExpanded(!commentExpanded)}
                     className="cursor-pointer"
                   >
-                    <textarea
-                      value={comment}
-                      readOnly
-                      rows={commentExpanded ? Math.max(2, comment.split('\n').length) : 2}
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 transition-all duration-200 resize-none cursor-pointer overflow-hidden"
-                      style={{ minHeight: '3rem' }}
-                    />
+                    {commentExpanded ? (
+                      <div className="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 transition-all duration-200 cursor-pointer">
+                        <div className="text-gray-900 whitespace-pre-wrap leading-relaxed break-words overflow-wrap-anywhere">
+                          {comment}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full p-4 border-2 border-gray-200 rounded-xl bg-gray-50 transition-all duration-200 cursor-pointer">
+                        {(() => {
+                          const { text: truncatedText, truncated } = truncateText(comment)
+                          return (
+                            <>
+                              <div className="text-gray-900 whitespace-pre-wrap leading-relaxed" style={{ 
+                                lineHeight: '1.5rem',
+                                maxHeight: '3rem',
+                                overflow: 'hidden'
+                              }}>
+                                {truncatedText}
+                              </div>
+                              {truncated && (
+                                <div className="text-gray-400 text-sm mt-1">...</div>
+                              )}
+                            </>
+                          )
+                        })()}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -355,17 +411,17 @@ export default function TipPage() {
           {/* 11. Выбор способа оплаты (СБП) */}
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-700 mb-3">Способ оплаты</label>
-                         <div className="p-4 border-2 border-emerald-500 bg-emerald-50/50 rounded-xl">
-               <div className="flex items-center space-x-3">
-                 <div className="p-2 bg-emerald-100 rounded-lg">
-                   <MessageCircle className="w-6 h-6 text-emerald-600" />
-                 </div>
-                 <div>
-                   <div className="font-semibold text-emerald-700">СБП</div>
-                   <div className="text-sm text-emerald-600">Система быстрых платежей</div>
-                 </div>
-               </div>
-             </div>
+            <div className="border-2 border-emerald-500 rounded-xl p-3">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-center">
+                  <Image src="/sbp-logo.png" alt="СБП" width={32} height={32} className="w-8 h-8 object-contain" />
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">СБП</div>
+                  <div className="text-sm text-gray-600">Система быстрых платежей</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* 12. Кнопка оплаты */}

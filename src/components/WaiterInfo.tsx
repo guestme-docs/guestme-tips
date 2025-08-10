@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react'
+import Image from 'next/image'
 
 interface WaiterInfoProps {
   name: string
@@ -21,7 +22,7 @@ export default function WaiterInfo({ name, rating, totalTips, avatar }: WaiterIn
     <div className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-neutral-100 shadow-sm">
       <div className="flex-shrink-0">
         {avatar ? (
-          <img src={avatar} alt={name} className="h-16 w-16 rounded-full object-cover" />
+          <Image src={avatar} alt={name} width={64} height={64} className="h-16 w-16 rounded-full object-cover" />
         ) : (
           <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-semibold">
             {name.charAt(0)}
