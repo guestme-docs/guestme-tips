@@ -166,8 +166,8 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
   }
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fullName = e.target.value
-    const nameParts = fullName.split(' ')
+    const fullName = e.target.value.trim()
+    const nameParts = fullName.split(' ').filter(part => part.length > 0)
     const name = nameParts[0] || ''
     const surname = nameParts.slice(1).join(' ') || ''
     setProfile(prev => ({ ...prev, name, surname }))
@@ -203,6 +203,15 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
   const navigateToSection = (section: typeof activeSection) => {
     setActiveSection(section)
     closeMenu()
+  }
+
+  // Функция для получения имени пользователя для приветствия
+  const getWelcomeUsername = () => {
+    const fullName = `${profile.name} ${profile.surname}`.trim()
+    if (!fullName) return 'Гость'
+    
+    const nameParts = fullName.split(' ')
+    return nameParts[0] || 'Гость'
   }
 
   if (!isAuthenticated) {
@@ -395,7 +404,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
           <div className="space-y-4">
             {/* Приветствие */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-neutral-900 font-inter-display mb-4">Добро пожаловать, {profile.name}!</h2>
+              <h2 className="text-xl font-semibold text-neutral-900 font-inter-display mb-4">Добро пожаловать, {getWelcomeUsername()}!</h2>
               
               {/* Рейтинг */}
               <div className="mb-4">
@@ -640,7 +649,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
               
               <div className="flex items-center space-x-4">
                 <div 
-                  className="w-20 h-20 bg-neutral-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                  className="w-20 h-20 bg-neutral-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
                   onClick={() => document.getElementById('photo-upload')?.click()}
                 >
                   {profile.photo ? (
@@ -652,20 +661,20 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                   )}
                 </div>
                 
-                <div className="flex-1 flex items-center space-x-3">
+                <div className="flex-1 flex items-center space-x-3 min-w-0">
                   {isEditingName ? (
-                    <div className="flex-1 flex items-center space-x-2">
+                    <div className="flex-1 flex items-center space-x-2 min-w-0">
                       <input
                         type="text"
                         value={`${profile.name} ${profile.surname}`.trim()}
                         onChange={handleNameChange}
-                        className="flex-1 px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
+                        className="flex-1 px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent min-w-0"
                         placeholder="Имя Фамилия"
                         autoFocus
                       />
                       <button
                         onClick={handleNameSave}
-                        className="p-2 text-[#6AE8C5] hover:bg-[#6AE8C5]/10 rounded-lg transition-colors"
+                        className="p-2 text-[#6AE8C5] hover:bg-[#6AE8C5]/10 rounded-lg transition-colors flex-shrink-0"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -673,13 +682,13 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                       </button>
                     </div>
                   ) : (
-                    <div className="flex-1 flex items-center space-x-2">
-                      <span className="text-lg font-medium text-neutral-900">
+                    <div className="flex-1 flex items-center space-x-2 min-w-0">
+                      <span className="text-lg font-medium text-neutral-900 truncate">
                         {profile.name} {profile.surname}
                       </span>
                       <button
                         onClick={handleNameEdit}
-                        className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+                        className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors flex-shrink-0"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -689,10 +698,6 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                   )}
                 </div>
               </div>
-              
-              <p className="text-xs text-neutral-500 mt-3 ml-24">
-                Нажмите на фото для загрузки. JPG/PNG до 5 МБ
-              </p>
             </div>
 
             {/* Цель */}
