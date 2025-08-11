@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { BarChart3, Wallet, User, Home } from 'lucide-react'
@@ -46,6 +46,13 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('all')
   const [period, setPeriod] = useState('all')
   const [isEditingName, setIsEditingName] = useState(false)
+  const [fullNameInput, setFullNameInput] = useState('')
+  
+  // Состояния для анимации
+  const [animatedRating, setAnimatedRating] = useState(1.0)
+  const [animatedProgress, setAnimatedProgress] = useState(0)
+  const [animatedAmount, setAnimatedAmount] = useState(0)
+  const [animatedCount, setAnimatedCount] = useState(0)
   
   const [profile, setProfile] = useState<WaiterProfile>({
     id: waiterId,
@@ -128,6 +135,89 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
     }
   ])
 
+  // Анимация при загрузке страницы
+  useEffect(() => {
+    if (isAuthenticated && activeSection === 'dashboard') {
+      // Анимация рейтинга от 1.0 до 4.8
+      const targetRating = 4.8
+      const ratingDuration = 800 // 0.8 секунды
+      const ratingStep = (targetRating - 1.0) / (ratingDuration / 16) // 60 FPS
+      
+      let currentRating = 1.0
+      const ratingInterval = setInterval(() => {
+        currentRating += ratingStep
+        if (currentRating >= targetRating) {
+          setAnimatedRating(targetRating)
+          clearInterval(ratingInterval)
+        } else {
+          setAnimatedRating(parseFloat(currentRating.toFixed(1)))
+        }
+      }, 16)
+      
+      // Анимация прогресса от 0 до текущего значения
+      const currentAmount = tips.reduce((sum, tip) => sum + tip.amount, 0)
+      const targetProgress = Math.min((currentAmount / profile.goalAmount) * 100, 100)
+      const progressDuration = 1000 // 1 секунда
+      const progressStep = targetProgress / (progressDuration / 16) // 60 FPS
+      
+      let currentProgress = 0
+      const progressInterval = setInterval(() => {
+        currentProgress += progressStep
+        if (currentProgress >= targetProgress) {
+          setAnimatedProgress(targetProgress)
+          clearInterval(progressInterval)
+        } else {
+          setAnimatedProgress(parseFloat(currentProgress.toFixed(1)))
+        }
+      }, 16)
+      
+      // Анимация суммы от 0 до текущего значения
+      const amountDuration = 1000 // 1 секунда
+      const amountStep = currentAmount / (amountDuration / 16) // 60 FPS
+      
+      let currentAmountAnimated = 0
+      const amountInterval = setInterval(() => {
+        currentAmountAnimated += amountStep
+        if (currentAmountAnimated >= currentAmount) {
+          setAnimatedAmount(currentAmount)
+          clearInterval(amountInterval)
+        } else {
+          setAnimatedAmount(Math.round(currentAmountAnimated))
+        }
+      }, 16)
+      
+      // Анимация количества от 0 до текущего значения
+      const targetCount = tips.length
+      const countDuration = 800 // 0.8 секунды
+      const countStep = targetCount / (countDuration / 16) // 60 FPS
+      
+      let currentCount = 0
+      const countInterval = setInterval(() => {
+        currentCount += countStep
+        if (currentCount >= targetCount) {
+          setAnimatedCount(targetCount)
+          clearInterval(countInterval)
+        } else {
+          setAnimatedCount(Math.round(currentCount))
+        }
+      }, 16)
+      
+      // Очистка интервалов при размонтировании
+      return () => {
+        clearInterval(ratingInterval)
+        clearInterval(progressInterval)
+        clearInterval(amountInterval)
+        clearInterval(countInterval)
+      }
+    }
+  }, [isAuthenticated, activeSection, tips, profile.goalAmount])
+
+  // Инициализация полного имени для редактирования
+  useEffect(() => {
+    setFullNameInput(`${profile.name} ${profile.surname}`.trim())
+  }, [profile.name, profile.surname])
+
+
   // Заглушка для авторизации
   const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -159,18 +249,20 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
 
   const handleNameEdit = () => {
     setIsEditingName(true)
+    setFullNameInput(`${profile.name} ${profile.surname}`.trim())
   }
 
   const handleNameSave = () => {
     setIsEditingName(false)
-  }
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fullName = e.target.value.trim()
+    const fullName = fullNameInput.trim()
     const nameParts = fullName.split(' ').filter(part => part.length > 0)
     const name = nameParts[0] || ''
     const surname = nameParts.slice(1).join(' ') || ''
     setProfile(prev => ({ ...prev, name, surname }))
+  }
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFullNameInput(e.target.value)
   }
 
   const handleCardUpdate = (cardNumber: string) => {
@@ -410,7 +502,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
               <div className="mb-4">
                 <div className="text-sm text-neutral-600 mb-2">Ваш рейтинг</div>
                 <div className="flex items-center space-x-3">
-                  <span className="text-2xl font-bold text-neutral-900">4.8</span>
+                  <span className="text-2xl font-bold text-neutral-900">{animatedRating.toFixed(1)}</span>
                   <div className="flex text-yellow-400">
                     {Array.from({ length: 5 }, (_, i) => (
                       <span key={i}>{i < 5 ? '★' : '☆'}</span>
@@ -424,12 +516,12 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
               <div>
                 <div className="text-sm text-neutral-600 mb-2">Прогресс цели</div>
                 <div className="mb-2">
-                  <div className="text-lg font-semibold text-neutral-900">₽{tips.reduce((sum, tip) => sum + tip.amount, 0).toLocaleString()} из ₽{profile.goalAmount.toLocaleString()}</div>
+                  <div className="text-lg font-semibold text-neutral-900">₽{animatedAmount.toLocaleString()} из ₽{profile.goalAmount.toLocaleString()}</div>
                 </div>
                 <div className="w-full bg-neutral-200 rounded-full h-3">
                   <div 
                     className="bg-[#6AE8C5] h-3 rounded-full transition-all duration-300" 
-                    style={{ width: `${Math.min((tips.reduce((sum, tip) => sum + tip.amount, 0) / profile.goalAmount) * 100, 100)}%` }}
+                    style={{ width: `${animatedProgress}%` }}
                   ></div>
                 </div>
               </div>
@@ -442,7 +534,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                 className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
               >
                 <div className="text-2xl font-bold text-neutral-900">
-                  ₽ {tips.reduce((sum, tip) => sum + tip.amount, 0).toLocaleString()}
+                  ₽ {animatedAmount.toLocaleString()}
                 </div>
                 <div className="text-sm text-neutral-600">Всего чаевых</div>
               </button>
@@ -451,7 +543,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                 className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
               >
                 <div className="text-2xl font-bold text-neutral-900">
-                  {tips.length}
+                  {animatedCount}
                 </div>
                 <div className="text-sm text-neutral-600">Количество</div>
               </button>
@@ -666,7 +758,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                     <div className="flex-1 flex items-center space-x-2 min-w-0">
                       <input
                         type="text"
-                        value={`${profile.name} ${profile.surname}`.trim()}
+                        value={fullNameInput}
                         onChange={handleNameChange}
                         className="flex-1 px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent min-w-0"
                         placeholder="Имя Фамилия"
