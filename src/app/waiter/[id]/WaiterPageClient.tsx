@@ -45,6 +45,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
   const [activeSection, setActiveSection] = useState<'dashboard' | 'tips' | 'profile'>('dashboard')
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('all')
   const [period, setPeriod] = useState('all')
+  const [isEditingName, setIsEditingName] = useState(false)
   
   const [profile, setProfile] = useState<WaiterProfile>({
     id: waiterId,
@@ -154,6 +155,22 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  const handleNameEdit = () => {
+    setIsEditingName(true)
+  }
+
+  const handleNameSave = () => {
+    setIsEditingName(false)
+  }
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fullName = e.target.value
+    const nameParts = fullName.split(' ')
+    const name = nameParts[0] || ''
+    const surname = nameParts.slice(1).join(' ') || ''
+    setProfile(prev => ({ ...prev, name, surname }))
   }
 
   const handleCardUpdate = (cardNumber: string) => {
@@ -612,8 +629,20 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
           <div className="space-y-4">
             {/* Фото профиля и личные данные */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="w-20 h-20 bg-neutral-200 rounded-full flex items-center justify-center overflow-hidden">
+              {/* Скрытый input для загрузки фото */}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+                id="photo-upload"
+              />
+              
+              <div className="flex items-center space-x-4">
+                <div 
+                  className="w-20 h-20 bg-neutral-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => document.getElementById('photo-upload')?.click()}
+                >
                   {profile.photo ? (
                     <Image src={profile.photo} alt="" width={80} height={80} className="w-20 h-20 object-cover" />
                   ) : (
@@ -622,46 +651,48 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                     </span>
                   )}
                 </div>
-                <div className="flex-1">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-[#6AE8C5] file:text-neutral-900 hover:file:opacity-90"
-                  />
-                  <p className="text-xs text-neutral-500 mt-1">
-                    JPG/PNG до 5 МБ
-                  </p>
+                
+                <div className="flex-1 flex items-center space-x-3">
+                  {isEditingName ? (
+                    <div className="flex-1 flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={`${profile.name} ${profile.surname}`.trim()}
+                        onChange={handleNameChange}
+                        className="flex-1 px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
+                        placeholder="Имя Фамилия"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleNameSave}
+                        className="p-2 text-[#6AE8C5] hover:bg-[#6AE8C5]/10 rounded-lg transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex items-center space-x-2">
+                      <span className="text-lg font-medium text-neutral-900">
+                        {profile.name} {profile.surname}
+                      </span>
+                      <button
+                        onClick={handleNameEdit}
+                        className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
               
-              {/* Имя и Фамилия */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Имя
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.name}
-                    onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
-                    placeholder="Имя"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Фамилия
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.surname}
-                    onChange={(e) => setProfile(prev => ({ ...prev, surname: e.target.value }))}
-                    className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
-                    placeholder="Фамилия"
-                  />
-                </div>
-              </div>
+              <p className="text-xs text-neutral-500 mt-3 ml-24">
+                Нажмите на фото для загрузки. JPG/PNG до 5 МБ
+              </p>
             </div>
 
             {/* Цель */}
