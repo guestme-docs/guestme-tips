@@ -12,6 +12,7 @@ interface WaiterProfile {
   phone: string
   photo?: string
   goal: string
+  goalAmount: number
   cardNumber?: string
   status: 'active' | 'inactive'
   restaurants: Array<{
@@ -51,6 +52,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
     surname: 'Иванов',
     phone: '+7 999 123 45 67',
     goal: 'Накопить на отпуск',
+    goalAmount: 50000,
     status: 'active',
     restaurants: [
       { id: '1', name: 'Стейк-хаус BigFood на Пушечной, 61', status: 'active' },
@@ -376,7 +378,7 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
           <div className="space-y-4">
             {/* Приветствие */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-neutral-900 font-inter-display mb-4">Добро пожаловать, Алексей!</h2>
+              <h2 className="text-xl font-semibold text-neutral-900 font-inter-display mb-4">Добро пожаловать, {profile.name}!</h2>
               
               {/* Рейтинг */}
               <div className="mb-4">
@@ -396,12 +398,12 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
               <div>
                 <div className="text-sm text-neutral-600 mb-2">Прогресс цели</div>
                 <div className="mb-2">
-                  <div className="text-lg font-semibold text-neutral-900">₽12,500 из ₽50,000</div>
+                  <div className="text-lg font-semibold text-neutral-900">₽{tips.reduce((sum, tip) => sum + tip.amount, 0).toLocaleString()} из ₽{profile.goalAmount.toLocaleString()}</div>
                 </div>
                 <div className="w-full bg-neutral-200 rounded-full h-3">
                   <div 
                     className="bg-[#6AE8C5] h-3 rounded-full transition-all duration-300" 
-                    style={{ width: '25%' }}
+                    style={{ width: `${Math.min((tips.reduce((sum, tip) => sum + tip.amount, 0) / profile.goalAmount) * 100, 100)}%` }}
                   ></div>
                 </div>
               </div>
@@ -608,10 +610,9 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
 
         {activeSection === 'profile' && (
           <div className="space-y-4">
-            {/* Фото профиля */}
+            {/* Фото профиля и личные данные */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="font-semibold text-neutral-900 mb-4 font-inter-display">Фото профиля</h3>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 mb-6">
                 <div className="w-20 h-20 bg-neutral-200 rounded-full flex items-center justify-center overflow-hidden">
                   {profile.photo ? (
                     <Image src={profile.photo} alt="" width={80} height={80} className="w-20 h-20 object-cover" />
@@ -633,6 +634,34 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                   </p>
                 </div>
               </div>
+              
+              {/* Имя и Фамилия */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Имя
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.name}
+                    onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
+                    placeholder="Имя"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Фамилия
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.surname}
+                    onChange={(e) => setProfile(prev => ({ ...prev, surname: e.target.value }))}
+                    className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
+                    placeholder="Фамилия"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Цель */}
@@ -643,12 +672,26 @@ export default function WaiterPageClient({ waiterId }: WaiterPageClientProps) {
                 onChange={(e) => setProfile(prev => ({ ...prev, goal: e.target.value }))}
                 rows={3}
                 maxLength={200}
-                className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
+                className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent mb-4"
                 placeholder="Опишите, на что вы копите чаевые..."
               />
-              <p className="text-xs text-neutral-500 mt-2 text-right">
+              <p className="text-xs text-neutral-500 mb-4 text-right">
                 {profile.goal.length}/200 символов
               </p>
+              
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Сумма цели (₽)
+                </label>
+                <input
+                  type="number"
+                  value={profile.goalAmount}
+                  onChange={(e) => setProfile(prev => ({ ...prev, goalAmount: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6AE8C5] focus:border-transparent"
+                  placeholder="50000"
+                  min="0"
+                />
+              </div>
             </div>
 
             {/* Банковская карта */}
