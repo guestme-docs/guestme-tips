@@ -77,6 +77,133 @@ const hasModernAPIs = () => {
   }
 }
 
+// Компонент для встроенных браузеров - упрощенная версия без проблемных функций
+function InAppBrowserWrapper({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Добавляем специальные стили для встроенных браузеров
+    const style = document.createElement('style')
+    style.textContent = `
+      /* Fallback стили для встроенных браузеров */
+      .in-app-fallback {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+      }
+      
+      /* Убираем потенциально проблемные CSS свойства */
+      .in-app-fallback * {
+        backdrop-filter: none !important;
+        filter: none !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+      }
+      
+      /* Дополнительные стили для стабильности */
+      .in-app-fallback button {
+        -webkit-appearance: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      .in-app-fallback input {
+        -webkit-appearance: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+    `
+    document.head.appendChild(style)
+    
+    // Отключаем потенциально проблемные функции
+    if (typeof window !== 'undefined') {
+      // Отключаем ResizeObserver если он есть
+      if (window.ResizeObserver) {
+        try {
+          window.ResizeObserver = undefined as unknown as typeof ResizeObserver
+        } catch {
+          // Игнорируем ошибки
+        }
+      }
+      
+      // Отключаем IntersectionObserver если он есть
+      if (window.IntersectionObserver) {
+        try {
+          window.IntersectionObserver = undefined as unknown as typeof IntersectionObserver
+        } catch {
+          // Игнорируем ошибки
+        }
+      }
+      
+      // Отключаем requestAnimationFrame если он проблемный
+      const originalRAF = window.requestAnimationFrame
+      window.requestAnimationFrame = function(callback) {
+        try {
+          return originalRAF.call(window, callback)
+        } catch {
+          // Fallback на setTimeout
+          return setTimeout(callback, 16) as unknown as number
+        }
+      }
+      
+      // Отключаем потенциально проблемные Next.js функции
+      try {
+        // Перехватываем ошибки роутера Next.js
+        const originalPushState = window.history.pushState
+        const originalReplaceState = window.history.replaceState
+        
+        window.history.pushState = function(...args) {
+          try {
+            return originalPushState.apply(window.history, args)
+          } catch (e) {
+            console.warn('Ошибка pushState, игнорируем:', e)
+            return undefined
+          }
+        }
+        
+        window.history.replaceState = function(...args) {
+          try {
+            return originalReplaceState.apply(window.history, args)
+          } catch (e) {
+            console.warn('Ошибка replaceState, игнорируем:', e)
+            return undefined
+          }
+        }
+      } catch {
+        // Игнорируем ошибки при перехвате
+      }
+      
+      // Добавляем глобальный обработчик ошибок для встроенных браузеров
+      const handleGlobalError = (event: ErrorEvent) => {
+        console.warn('Ошибка во встроенном браузере, игнорируем:', event.error || event.message)
+        event.preventDefault()
+        event.stopPropagation()
+        return false
+      }
+      
+      window.addEventListener('error', handleGlobalError, true)
+      window.addEventListener('unhandledrejection', (event) => {
+        console.warn('Необработанная ошибка Promise во встроенном браузере, игнорируем:', event.reason)
+        event.preventDefault()
+        event.stopPropagation()
+      }, true)
+      
+      return () => {
+        try {
+          document.head.removeChild(style)
+          window.removeEventListener('error', handleGlobalError, true)
+        } catch {
+          // Игнорируем ошибки при очистке
+        }
+      }
+    }
+  }, [])
+  
+  return (
+    <div className="in-app-fallback">
+      {children}
+    </div>
+  )
+}
+
 export default function NavigationErrorBoundary({ children }: NavigationErrorBoundaryProps) {
   const [hasError, setHasError] = useState(false)
   const [isInApp, setIsInApp] = useState(false)
@@ -88,6 +215,12 @@ export default function NavigationErrorBoundary({ children }: NavigationErrorBou
     // Проверяем, находимся ли мы во встроенном браузере
     const inApp = isInAppBrowser()
     setIsInApp(inApp)
+    
+    // Если это встроенный браузер, полностью отключаем обработку ошибок
+    if (inApp) {
+      console.log('Обнаружен встроенный браузер, отключаем обработку ошибок')
+      return
+    }
     
     // Проверяем работоспособность JavaScript
     const jsOk = isJavaScriptWorking()
@@ -125,38 +258,8 @@ export default function NavigationErrorBoundary({ children }: NavigationErrorBou
       userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'N/A'
     })
     
-    // Для встроенных браузеров добавляем дополнительные стили для совместимости
-    if (inApp && typeof document !== 'undefined') {
-      const style = document.createElement('style')
-      style.textContent = `
-        /* Fallback стили для встроенных браузеров */
-        .in-app-fallback {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          line-height: 1.5;
-          -webkit-text-size-adjust: 100%;
-          -webkit-font-smoothing: antialiased;
-        }
-        
-        /* Убираем потенциально проблемные CSS свойства */
-        .in-app-fallback * {
-          backdrop-filter: none !important;
-          filter: none !important;
-          transform: none !important;
-          transition: none !important;
-          animation: none !important;
-        }
-      `
-      document.head.appendChild(style)
-    }
-    
     // Обработчик ошибок навигации (только для обычных браузеров)
     const handleNavigationError = (event: ErrorEvent) => {
-      // Не перехватываем ошибки во встроенных браузерах
-      if (inApp) {
-        console.warn('Ошибка во встроенном браузере, игнорируем:', event.error || event.message)
-        return
-      }
-      
       // Проверяем, что это действительно критическая ошибка навигации
       const error = event.error || event.message
       const errorString = error?.toString() || ''
@@ -192,18 +295,13 @@ export default function NavigationErrorBoundary({ children }: NavigationErrorBou
     }
   }, [routerError])
 
-  // Если JavaScript не работает, мы во встроенном браузере, нет поддержки современных API,
-  // или есть проблемы с роутером - показываем содержимое без обработки ошибок
-  if (isInApp || !jsWorking || !hasModern || routerError) {
-    // Для встроенных браузеров добавляем дополнительные стили для совместимости
-    if (isInApp) {
-      return (
-        <div className="in-app-fallback">
-          {children}
-        </div>
-      )
-    }
-    
+  // Если это встроенный браузер, показываем содержимое в специальной обертке
+  if (isInApp) {
+    return <InAppBrowserWrapper>{children}</InAppBrowserWrapper>
+  }
+
+  // Если JavaScript не работает, нет поддержки современных API, или есть проблемы с роутером
+  if (!jsWorking || !hasModern || routerError) {
     return <>{children}</>
   }
 
